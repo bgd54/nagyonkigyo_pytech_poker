@@ -1,0 +1,22 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[magyar]{babel}
+\usepackage{amsmath, amsfonts, t1enc}
+\usepackage[pdftex,unicode,raiselinks,colorlinks]
+{hyperref}
+
+\begin{document}
+\section*{Pokerbot implementálása}
+\subsection*{A feladat általános ismertetése}
+Feladatunk egy pókerbot implementálása, amely ellen Texas Holdem póker játszható heads-up-ban (azaz csak ketten játszunk, a pókerbottal) no-limit és/vagy fix-limit formában. A cél, hogy a pókerbot egy "okos játékos"-t szimuláljon, aki az ellenfelének a statisztikáit kihasználva hozza meg a legoptimálisabb döntéseket, tehát folyamatosan információkat gyűjt az ellenfeléről és azokat felhasználja. Ezáltal a pókerbot az ellenfélhez tudna alkalmazkodni.
+Lehetséges lenne sit-n-go játék megvalósítása heads-up-ban, ami azt jelenti, hogy a heads-up során folyamatosan emelkednek a vakok, mint egy pókerversenyen.
+\subsection*{Megvalósíthatóság}
+Napjainkra számos pókerbotot készítetek már. Ezek egy része képes arra, hogy egy adott online pókerteremben 10-20 asztalon egyszerre játsszon. Ezek célja egyértelműen, hogy nyereséget próbáljon meg termelni a használójának.\\
+A mi feladatunkhoz hasonló implementációk is léteznek, pl. www.neopokerbot.com.
+Az implementált pókerbotok egy része a játékelmélet és a mesterséges intelligencia alkalmazásával próbál nyereséget termelni.
+\subsection*{Implementáció}
+A egy grafikus interfészre készítünk, ahol a játékos látja a zsetonokat, az asztalt és természetesen a saját lapjait. Itt a leosztások kezdetén animációval szimulálható lenne a lapok kiosztásának folyamata.\\
+A pókerbot folyamatosan gyűjt információkat a játékosról, például, hogy pre-flop (azaz az első licitkörben) a kisvakról (kezdeményezőként) hányszor emel. Ez az emelés sokszor a valóságban igen gyenge lapokkal is megtörténik a kötelező kezdeti tétek ellopásának céljából. Néhány száz leosztás után már megközelítőleg pontos kép alakulhat ki arról, hogy a játékos a lapjainak hány százalékával emel. Ennek alapján a pókerbot az saját lapját összehasonlíthatja az ellenfél feltételezett laptartományával és ha ezzel a tartománnyal szemben előnyben van, akkor megad/emel, ellenkező esetben dob.
+További jellemző jelenség, amelyről érdemes statisztikákat vezetni az úgynevezett folytatólagos nyitás (c-bet), amely azt jelenti, hogy ha a játékos emelt a flop előtt és az ellenfele megadta, akkor milyen gyakran emel ismét a flopon (a következő licitkörben). Ha ez az érték magas, akkor az feltételezhetően blöffből is megtörténhet, így a pókerbot megpróbálhatja ezt kihasználni é visszaemelhet úgy is, hogy nincs semmilyen értékes lapja (tehát egy párja se alakult ki például). A statisztikák létrehozásához, kezeléséhez, a számításokhoz pl. a numpy, scypy és további a gyakorlatokon megismert modulok használatával történhetne. A játék végén, amikor a játékos kilép, akkor egy grafikon jelenítené meg a zsetonmennyiségének változását a leosztások előrehaladtával, itt esetleg a matplotlib használható lenne.
+A pókerbot optimális játékstratégiájának érdekében a mesterséges intelligencia, ill. adatbányászati eszközök használhatóak lehetnek, amelyekről a félév során fogunk tanulni.
+\end{document}

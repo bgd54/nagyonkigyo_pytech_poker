@@ -1,0 +1,14 @@
+My_first_card: HQ
+My_second_card: CA
+Others_first_card: S3
+Others_second_card: D6
+Main1: S9
+Main1_state face
+Main2: D8
+Main2_state face
+Main3: SJ
+Main3_state face
+Main4: H9
+Main4_state back
+Main5: C8
+Main5_state back

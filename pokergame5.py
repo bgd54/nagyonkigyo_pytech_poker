@@ -3,6 +3,9 @@ import tkMessageBox
 
 
 path = "\\poker\\"
+# projectdir/src mappa:
+# BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+# path = os.path.join(BASE_DIR, "src")+os.path.sep
 
 def savegame():
     

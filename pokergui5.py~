@@ -2,7 +2,7 @@ import Tkinter as tk
 from PIL import ImageTk, Image
 import random
 import time
-#import winsound
+import winsound
 import os
 
 master = tk.Tk()
@@ -58,13 +58,13 @@ def playsound(**options):
         
 
         if options.get("type1") == "1": 
-        #        winsound.PlaySound(path+"poker1.wav",winsound.SND_FILENAME)
+                winsound.PlaySound(path+"poker1.wav",winsound.SND_FILENAME)
         elif options.get("type1") == "2": 
-        #        winsound.PlaySound(path+"poker1.wav",winsound.SND_FILENAME)
-        #        winsound.PlaySound(path+"poker1.wav",winsound.SND_FILENAME)
+                winsound.PlaySound(path+"poker1.wav",winsound.SND_FILENAME)
+                winsound.PlaySound(path+"poker1.wav",winsound.SND_FILENAME)
 
         elif options.get("type1") == "3":
-        #        winsound.PlaySound(path+"cardShove4.wav",winsound.SND_FILENAME)
+                winsound.PlaySound(path+"cardShove4.wav",winsound.SND_FILENAME)
 
 
 language = ['english']

@@ -2,11 +2,24 @@ import threading
 __author__ = 'bgd'
 
 
+def format_converter(table, gui_to_bot=True):
+    """
+    Converts card representation for table from "COLORCHARNUMBER" to NUMBER, NUMBER or backwards(if gui_to_bot is False)
+    :param table: list of cards
+    :param gui_to_bot: True to convert gui format("CNN") to bot format(N,N). :type boolean
+    :return: list of cards with the opposite format
+    """
+    if gui_to_bot:
+        return sum([[(ord(s[0])-ord('A')+1), int(s[1:])] for s in table], [])
+    else:
+        return [str(chr(table[2*i]-1+ord('A')))+str(table[2*i+1]) for i in range(int(len(table)/2))]
+
+
 def classificator(color1, value1, color2, value2, color3, value3, color4, value4, color5, value5):
     """
     Determine the value of the given hand.
     :param color1-5: the suit of the proper card 1-4 1: hearts, 2: diamond, 3: spades, 4: clubs
-    :param value1-5: the value of the proper card 1-13: 1: 2 ... 13: Ace
+    :param value1-5: the value of the proper card 1-13: 1: Ace, 2: 2, ... 13: King
     :return: 0-9 the value of the hand: 0 - high card 9 - royal flush
     """
     colors = [0, 0, 0, 0]

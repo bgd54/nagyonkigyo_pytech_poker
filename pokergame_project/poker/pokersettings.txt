@@ -1,0 +1,3 @@
+Language: hungarian
+Sound: off
+Style: blue

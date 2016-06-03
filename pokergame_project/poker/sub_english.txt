@@ -1,0 +1,33 @@
+Welcome!
+You can look at your cards!
+It's a tie!
+Bot wins!
+You win!
+You are the big blind!
+You are the small blind
+All games:
+Lost:
+Win:
+Choose language
+Give
+Raise
+Throw
+Start round
+Show my cards
+Your tokens:
+Bot tokens:
+Your bet:
+Bot's bet:
+All bet:
+File
+New
+Open
+Save
+Settings
+Language
+Sounds
+Card types
+Statistics
+Game statistics
+Rules
+Ranking

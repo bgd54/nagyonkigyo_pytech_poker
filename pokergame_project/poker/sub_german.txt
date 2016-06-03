@@ -1,0 +1,33 @@
+Willkommen auf dem Spiel!
+Können wir Ihre Karten!
+ZIEHEN!
+Die sich ergebende Maschine!
+Sie haben gewonnen!
+Du bist im Big Blind!
+Du bist in der Small Blind!
+Alle Spiele:
+verloren:
+gewonnen:
+Wählen Sie Ihre Sprache!
+gewähren
+erhöhen
+wegwerfen
+neue Hand
+ZEIGEN
+Chip-Zähler:
+Bot-Chips:
+Die Spieler wetten:
+Bot dem Spiel:
+Alle Wetten:
+spec
+neu
+ÖFFNUNGS
+kostenlos
+Einstellung
+Sprache
+Klänge
+Kartenart
+Statistiken
+Spielstatistiken 
+als Bedingungen
+Profilwerte

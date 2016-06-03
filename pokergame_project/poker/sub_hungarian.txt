@@ -1,0 +1,33 @@
+Udv a jatekban!
+Megnezheted a lapjaid!
+Dontetlen!
+A gep nyert!
+Te nyertel!
+Te vagy a nagy vak!
+Te vagy a kis vak!
+Osszes jatek:
+Elvesztett:
+Nyert:
+Valaszd ki a nyelvet!
+Megad
+Emel
+Eldob
+Uj leosztas
+Mutasd a kartyaim
+Zsetonjaid szama:
+Bot zsetonjai:
+Jatekos tetje:
+Bot tetje:
+Osszes tet:
+Fajl
+Uj
+Megnyitas
+Mentes
+Beallitasok
+Nyelv
+Hangok
+Kartya stilusok
+Statisztika
+Jatek statisztika
+Szabalyok
+Lap ertekek

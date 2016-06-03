@@ -1,7 +1,6 @@
-import pokergame_alap
-import bot_sample
-
 import os
+
+import pokergame_alap
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 path = os.path.join(BASE_DIR, "poker")+os.path.sep

@@ -1,7 +1,11 @@
 import pokergame_alap
 
-def send_to_bot(esemeny,player_money,player_bet,bot_money,bot_bet):
+class botbeta:
+    def __init__(self, logic):
+        self.logic = logic
 
-    print esemeny,player_money,player_bet,bot_money,bot_bet
-    pokergame_alap.give(who="bot")
+    def send_to_bot(self,esemeny,player_money,player_bet,bot_money,bot_bet):
+
+        print esemeny,player_money,player_bet,bot_money,bot_bet
+        self.logic.give(who="bot")
 

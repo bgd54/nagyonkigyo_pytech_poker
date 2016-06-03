@@ -2,14 +2,15 @@ import Tkinter as tk
 from PIL import ImageTk, Image
 import random
 import time
-import winsound
+##import winsound
 import os
 import platform
 
 
 class PokerGui:
-    def __init__(self, master):
-
+    def __init__(self):
+        self.logic = None
+        self.master = tk.Tk()
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         self.path = os.path.join(BASE_DIR, "poker")+os.path.sep
 
@@ -49,10 +50,10 @@ class PokerGui:
         self.minsize = [1000,600]
         self.maincard_size=[100,160]
 
-        #master.minsize(width=self.minsize[0], height=self.minsize[1])
-        #master.geometry('1200x670')
-        master.maxsize(width=self.main_size[0], height=self.main_size[1])
-        #master.resizable(0,0)
+        #self.master.minsize(width=self.minsize[0], height=self.minsize[1])
+        #self.master.geometry('1200x670')
+        self.master.maxsize(width=self.main_size[0], height=self.main_size[1])
+        #self.master.resizable(0,0)
 
         # Kepek, stilusok
 
@@ -83,16 +84,16 @@ class PokerGui:
 
         # Cimsor
 
-        master.wm_title("Nagyonkigyo poker")
-        master.tk.call("wm", "iconphoto", master._w, self.img_blue3)
+        self.master.wm_title("Nagyonkigyo poker")
+        self.master.tk.call("wm", "iconphoto", self.master._w, self.img_blue3)
 
         # Kilepes
 
         def destroy():
             self.save_settings()
-            master.destroy()
+            self.master.destroy()
 
-        master.protocol("WM_DELETE_WINDOW", destroy)
+        self.master.protocol("WM_DELETE_WINDOW", destroy)
 
         # Kezdeti beallitasok
 
@@ -110,28 +111,28 @@ class PokerGui:
         self.read_settings()
         self.get_style()
 
-        vakok = tk.Frame(master)
+        vakok = tk.Frame(self.master)
         self.kisvak = tk.Label(vakok,text='')
         self.nagyvak = tk.Label(vakok,text='')
 
         # Menu
 
-        self.menubar = tk.Menu(master)
+        self.menubar = tk.Menu(self.master)
         self.create_menu()
-        master.config(menu=self.menubar)
+        self.master.config(menu=self.menubar)
 
 
         # Asztal hattere
 
-        self.mainframe = tk.Label(master,height=self.main_size[1],width=self.main_size[0],image=self.table2)
+        self.mainframe = tk.Label(self.master,height=self.main_size[1],width=self.main_size[0],image=self.table2)
         self.mainframe.place(x=0,y=0)
 
         # Masik jatekos (gep)
      
-        self.buttons_bot = tk.Frame(master)
-        self.zseton2 = tk.Frame(master)
-        self.zsetonsum_bot = tk.Frame(master)
-        self.cards_others = tk.Frame(master)
+        self.buttons_bot = tk.Frame(self.master)
+        self.zseton2 = tk.Frame(self.master)
+        self.zsetonsum_bot = tk.Frame(self.master)
+        self.cards_others = tk.Frame(self.master)
 
 
         self.create_bot_cards()
@@ -142,25 +143,25 @@ class PokerGui:
 
         # Tetek
 
-        self.bets = tk.Frame(master)
+        self.bets = tk.Frame(self.master)
         self.create_bets()
 
         # Fo kartyak
 
-        self.create_main_cards(master)
+        self.create_main_cards(self.master)
 
         # Uj kor gomb
         
-        self.buttons = tk.Frame(master)
+        self.buttons = tk.Frame(self.master)
         self.create_showbutton()
 
         # Sajat kartyak es zsetonok
 
-        self.cards_mine = tk.Frame(master)
-        self.cards_mine2 = tk.Frame(master)
-        self.zseton = tk.Frame(master)
-        self.zsetonsum = tk.Frame(master)
-        self.buttons2 = tk.Frame(master)
+        self.cards_mine = tk.Frame(self.master)
+        self.cards_mine2 = tk.Frame(self.master)
+        self.zseton = tk.Frame(self.master)
+        self.zsetonsum = tk.Frame(self.master)
+        self.buttons2 = tk.Frame(self.master)
 
         self.create_mine_cards()
 
@@ -172,23 +173,23 @@ class PokerGui:
        
         self.changeState([self.giveButton,self.raiseButton,self.throwButton,self.giveButton2,self.raiseButton2,self.throwButton2],"disabled")
 
-        # Master elemeinek elhelyezese
+        # self.master elemeinek elhelyezese
 
-        self.new_separator(master,0,50,0,0)
+        self.new_separator(self.master,0,50,0,0)
 
-        self.new_separator(master,300,0,1,0)
+        self.new_separator(self.master,300,0,1,0)
         self.zsetonsum_bot.grid(row=1,column=1)
         self.zseton2.grid(row=1,column=2)
         self.cards_others.grid(row=1,column=4)
         self.buttons_bot.grid(row=1,column=5)
 
-        self.new_separator(master,0,10,2,0)
+        self.new_separator(self.master,0,10,2,0)
         
         self.bets.grid(row=3,column=0)
         # column 1-5: main cards
         self.buttons.grid(row=3,column=6)
 
-        self.new_separator(master,0,10,4,0)
+        self.new_separator(self.master,0,10,4,0)
         
         self.cards_mine2.grid(row=5,column=1)
         self.cards_mine.grid(row=5,column=2)
@@ -196,31 +197,46 @@ class PokerGui:
         self.zseton.grid(row=5,column=4)
         self.buttons2.grid(row=5,column=5)
      
-        self.new_separator(master,0,50,6,0)
+        self.new_separator(self.master,0,50,6,0)
 
 
-        master.grid_columnconfigure(0,weight=1)
-	master.grid_columnconfigure(1,weight=300)
-	master.grid_columnconfigure(2,weight=1)
-	master.grid_columnconfigure(3,weight=200)
-	master.grid_columnconfigure(4,weight=200)
-	master.grid_columnconfigure(5,weight=100)
-	master.grid_columnconfigure(6,weight=100)
-	master.grid_rowconfigure(0,weight=50)
-	master.grid_rowconfigure(1,weight=50)
-	master.grid_rowconfigure(2,weight=100)
-	master.grid_rowconfigure(3,weight=100)
-	master.grid_rowconfigure(4,weight=100)
-	master.grid_rowconfigure(5,weight=100)
-
-        
-
-        
+        self.master.grid_columnconfigure(0,weight=1)
+        self.master.grid_columnconfigure(1,weight=300)
+        self.master.grid_columnconfigure(2,weight=1)
+        self.master.grid_columnconfigure(3,weight=200)
+        self.master.grid_columnconfigure(4,weight=200)
+        self.master.grid_columnconfigure(5,weight=100)
+        self.master.grid_columnconfigure(6,weight=100)
+        self.master.grid_rowconfigure(0,weight=50)
+        self.master.grid_rowconfigure(1,weight=50)
+        self.master.grid_rowconfigure(2,weight=100)
+        self.master.grid_rowconfigure(3,weight=100)
+        self.master.grid_rowconfigure(4,weight=100)
+        self.master.grid_rowconfigure(5,weight=100)
         self.update_subs()
+
+    def setLogic(self, logic):
+        self.logic = logic
+        self.mycardsbutton.config(command=self.logic.showmycards)
+        self.showbutton2.config(command=self.logic.round_start)
+        self.giveButton.config(command=lambda:self.logic.give(who="player"))
+        self.raiseButton.config(command=lambda:self.logic.raise1(who="player"))
+        self.throwButton.config(command=lambda:self.logic.throw(who="player"))
+        ##
+        self.giveButton2.config(command=lambda:self.logic.give(who="bot"))
+        self.raiseButton2.config(command=lambda:self.logic.raise1(who="bot"))
+        self.throwButton2.config(command=lambda:self.logic.throw(who="bot"))
+        ##
+        self.filemenu.entryconfigure(0,command=self.logic.newgame)
+        self.filemenu.entryconfigure(1,command=self.logic.opengame)
+        self.filemenu.entryconfigure(2,command=self.logic.savegame)
        
 
 
         # Uj jatek betoltese
+
+    def start(self):
+        self.master.mainloop()
 
     def game1(self):
 
@@ -464,8 +480,8 @@ class PokerGui:
 
                     if platform.system() == "Windows":
 
-
-                        if options.get("type1") == "1": 
+                        pass
+                        """if options.get("type1") == "1":
                                 winsound.PlaySound(self.path+"poker1.wav",winsound.SND_FILENAME)
                         elif options.get("type1") == "2": 
                                 winsound.PlaySound(self.path+"poker1.wav",winsound.SND_FILENAME)
@@ -473,7 +489,7 @@ class PokerGui:
 
                         elif options.get("type1") == "3":
                                 winsound.PlaySound(self.path+"cardShove4.wav",winsound.SND_FILENAME)
-
+                        """
                     elif platform.system() == "Linux":
 
                         print "linux"
@@ -830,7 +846,7 @@ class PokerGui:
 
         stat = tk.Toplevel()
         #stat.resizable(0,0)
-        #stat.tk.call("wm", "iconphoto", master._w, self.img_blue3)
+        #stat.tk.call("wm", "iconphoto", self.master._w, self.img_blue3)
 
         label = tk.Label(stat,text="All games: ")
         label2 = tk.Label(stat,text="Lost: ")

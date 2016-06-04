@@ -137,6 +137,7 @@ class PokerGui:
 
         self.create_bot_cards()
         self.create_bot_buttons()
+        self.hide([self.buttons_bot])
             
         self.create_bot_labelsum()
         self.create_tokenlabels(self.zseton2)

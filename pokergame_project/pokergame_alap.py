@@ -2,6 +2,7 @@ import tkMessageBox
 import os
 import CardClassificator as CardCl
 import bot_sample
+from gamestatistics import Statistics
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 path = os.path.join(BASE_DIR, "poker")+os.path.sep
@@ -11,6 +12,7 @@ class Logic:
     def __init__(self, gui):
         self.gui = gui
         self.bot = bot_sample.botbeta(self)  # TODO
+        self.statistics = Statistics()
 
         # kezdeti ertkek beallitasa
         
@@ -109,7 +111,7 @@ class Logic:
 
         try:
 
-            file_open = open(path+"pokersave.txt","r")
+            file_open = open(path+"pokersave.txt", "r")
             for line in file_open.readlines():
 
                 if "My" in line:
@@ -194,7 +196,6 @@ class Logic:
             self.gui.card[1].config(image=self.gui.cardpictures2[1],text="face")
             self.gui.card[2].config(image=self.gui.cardpictures2[2],text="face")
 
-
         elif options.get("type1") == "turn":
 
             self.gui.card[3].config(image=self.gui.cardpictures2[3],text="face")
@@ -250,7 +251,7 @@ class Logic:
         self.player_black_bet = 0
         self.bot_black_bet = 0
 
-        
+        self.statistics.set_state(Statistics.PRE_FLOP)  # Statistics
  
         # Gui elemek atallitasa (kartyak hatoldala, gombok letiltasa?)
 
@@ -605,8 +606,12 @@ class Logic:
 
         buf = "%s\nplayer_has:\t%i\nplayer_bet:\t%i\nbot_has:\t%i\nbot_bet:\t%i\nall_bet:\t%i\n"
 
+
         # feladas
         if s == 1:
+            # Statisztikakhoz atadni az esemenyt.
+            self.statistics.perform_action(Statistics.FOLD, Statistics.BOT if who == "bot" else Statistics.PLAYER)
+
             self.round_over("throw_"+who)
             self.savegame2("throw_"+who)
         # tartas/megadas
@@ -626,6 +631,11 @@ class Logic:
 
                     # a bot gombjainak tiltasat feloldjuk (ez majd nem kell)
                     self.gui.changeState([self.gui.giveButton2,self.gui.raiseButton2,self.gui.throwButton2],"normal")
+
+                    if not (self.player_bet == 0 and self.bot_bet == 0):  # Statistics
+                        self.statistics.perform_action(
+                            Statistics.CHECK if self.player_bet == self.bot_bet else Statistics.GIVE,
+                            Statistics.BOT if who == "bot" else Statistics.PLAYER)
 
                     # ha a nagyvakot kell betenni
                     if self.player_bet == 0 and self.bot_bet == 0:
@@ -688,6 +698,7 @@ class Logic:
         elif s == 3:
 
             emel = 500
+            self.statistics.perform_action(Statistics.RAISE, Statistics.BOT if who == "bot" else Statistics.PLAYER)
 
             if who == "player":
 
@@ -755,6 +766,7 @@ class Logic:
             # ha a 3. lap nincs felforditva, akkor a flop kovetkezik
 
             if self.gui.card[2].cget("text") == "back":
+                self.statistics.set_state(Statistics.FLOP)  # Statistics
                 self.showmaincards(type1="flop")
 
                 self.savegame2([self.gui.maincards[0:3]])
@@ -764,6 +776,7 @@ class Logic:
             # ha a 4. lap nincs felforditva (1-3 igen), akkor a turn kovetkezik
 
             elif self.gui.card[3].cget("text") == "back":
+                self.statistics.set_state(Statistics.TURN)  # Statistics
                 self.showmaincards(type1="turn")
 
                 self.bot.send_to_bot_cards(self.gui.maincards[3:4])
@@ -771,6 +784,7 @@ class Logic:
 
             # ha az 5. lap nincs felforditva (1-4 igen), akkor a river kovetkezik
             elif self.gui.card[4].cget("text") == "back":
+                self.statistics.set_state(Statistics.RIVER)  # Statistics
                 self.showmaincards(type1="river")
 
                 self.bot.send_to_bot_cards(self.gui.maincards[4:])

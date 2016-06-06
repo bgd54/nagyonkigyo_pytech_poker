@@ -83,15 +83,9 @@ def classificator(hand):
     :return: 0-9 the value of the hand: 0 - high card 9 - royal flush
     """
     colors = [0, 0, 0, 0]
-    colors[hand[0]-1] += 1
-    colors[hand[2]-1] += 1
-    colors[hand[4]-1] += 1
-    colors[hand[6]-1] += 1
-    colors[hand[8]-1] += 1
-    flush = False
-    for i in colors:
-        if i == 5:
-            flush = True
+    for i in range(len(hand)//2):
+        colors[hand[2*i]-1] += 1
+    flush = 5 in colors
 
     values = [hand[1], hand[3], hand[5], hand[7], hand[9]]
 
@@ -193,18 +187,23 @@ def get_best_hand(table, bot_format=False, out_fmt_bot=True):
     return [max_value, thread_list[max_ind].hand if out_fmt_bot else format_converter(thread_list[max_ind].hand, False)]
 
 
-def who_win(player_cards, bot_cards, table, is_bot_format=False):
+def who_win(player_cards, bot_cards, table, is_bot_format=False, get_hands=False):
     """
     Determine which player has better hand.
     :param player_cards: cards of player(2) the format is given by is_bot_format
     :param bot_cards: cards of the bot(2) the format is given by is_bot_format
     :param table: cards on the table(5) the format is given by is_bot_format
     :param is_bot_format: :type boolean the format used as input True if bot format.
-    :return: return -1 if player loose 0 if draw 1 if player has won
+    :param get_hands: :type boolean if true it returns the hands of the players.
+    :return: return -1 if player loose 0 if draw 1 if player has won, if asked gives back the hands.
     """
     player_score, player_hand = get_best_hand(player_cards+table, is_bot_format)
     bot_score, bot_hand = get_best_hand(bot_cards+table, is_bot_format)
-    return compare_hands(player_hand, bot_hand, player_score, bot_score)
+
+    if not get_hands:
+        return compare_hands(bot_hand, player_hand, bot_score, player_score)
+    else:
+        return [compare_hands(bot_hand, player_hand, bot_score, player_score), player_hand, bot_hand]
 
 
 class MyWorker(threading.Thread):
@@ -238,3 +237,14 @@ class MyWorker(threading.Thread):
             self.lock.release()
         else:
             self.result_list[self.threadID] = classificator(self.hand)
+
+"""
+curr_table = [1,3, 3,12, 2,2, 2,4, 2,11]
+bot = [2,8, 1,2]
+player = [3,8, 3,7]
+
+c, p, b = who_win(player, bot, curr_table, True, True)
+print(c)
+print(p)
+print(b)
+"""

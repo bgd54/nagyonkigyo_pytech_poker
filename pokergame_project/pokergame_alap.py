@@ -1,18 +1,16 @@
 import tkMessageBox
-import itertools;
 import os
-import Tkinter as tk
-
-from pokergui_alap import PokerGui
+import CardClassificator as CardCl
 import bot_sample
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 path = os.path.join(BASE_DIR, "poker")+os.path.sep
 
+
 class Logic:
     def __init__(self, gui):
         self.gui = gui
-        self.bot = bot_sample.botbeta(self) ## TODO
+        self.bot = bot_sample.botbeta(self)  # TODO
 
         # kezdeti ertkek beallitasa
         
@@ -53,7 +51,6 @@ class Logic:
         self.end = 0
         self.throw1 = 0
 
-
     def savegame3(self, buf,player100,player_money,player_bet,bot_money,bot_bet,bet):
         """ Jatek allasanak kimentese"""
         
@@ -70,7 +67,6 @@ class Logic:
             file_save.write(str(info[i])+"\n")
 
         file_save.close()
-
 
     def savegame(self):
         """ Jatek allasanak kimentese kesobbi visszatolteshez"""
@@ -167,8 +163,6 @@ class Logic:
         except IOError:
             tkMessageBox.showerror ("No file", "No saved game found")
 
-
-
     def newgame(self):
 
         if self.gui.language == ['english']:
@@ -191,7 +185,6 @@ class Logic:
             else:
 
                 self.gui.game1()
-
 
     def showmaincards(self, **options):
 
@@ -230,7 +223,6 @@ class Logic:
         self.gui.cards[4].lift()
         self.gui.cards_mine.lift()
         self.gui.cards_others.lift()
-
 
     def round_start(self):
 
@@ -301,9 +293,7 @@ class Logic:
             self.gui.raiseButton.config(state="normal")
             self.gui.throwButton.config(state="normal")
             self.gui.changeText(self.gui.infolabel,self.gui.smallblind_info)
-            
 
-        
     def update_player_tokens(self):
         
         self.gui.zseton.black.config(text=str(self.player_black))
@@ -420,7 +410,6 @@ class Logic:
             self.bot_white_bet += self.bot_white
             self.bot_white = 0
 
-
     def player_get_tokens(self):
 
         self.player_black += self.bot_black_bet+self.player_black_bet
@@ -451,7 +440,6 @@ class Logic:
         self.player_red += self.player_red_bet
         self.player_blue += self.player_blue_bet
         self.player_white += self.player_white_bet
-    
 
     def round_over(self, case):
 
@@ -485,7 +473,6 @@ class Logic:
 
         self.gui.card_mine1.config(image=self.gui.cardpictures[0])
         self.gui.card_mine2.config(image=self.gui.cardpictures[1])
-
 
         # lapok felforditasanak hangja
 
@@ -537,7 +524,6 @@ class Logic:
 
         self.gui.changeText2([self.gui.all_bet_playerlabel,self.gui.all_bet_botlabel,self.gui.all_bet],"0")
 
-
         self.update_player_tokens()
         self.update_bot_tokens()
 
@@ -558,7 +544,7 @@ class Logic:
         self.gui.raiseButton2.config(state="disabled")
         self.gui.throwButton2.config(state="disabled")
 
-    def change_values(self,who,x,all_bet):
+    def change_values(self, who, x, all_bet):
 
         if who == "player":
 
@@ -598,14 +584,9 @@ class Logic:
                         
         self.all_bet = self.bot_bet + self.player_bet
 
-        
+    def moneyinf(self, s, who):
 
-
-
-    def moneyinf(self, s,who):
-
-        
-        self.decision +=1
+        self.decision += 1
 
         kisvak = self.gui.kisvak.cget("text")
         nagyvak = self.gui.nagyvak.cget("text")
@@ -622,26 +603,16 @@ class Logic:
 
         self.savegame2(["next"])
 
-
         buf = "%s\nplayer_has:\t%i\nplayer_bet:\t%i\nbot_has:\t%i\nbot_bet:\t%i\nall_bet:\t%i\n"
 
         # feladas
-
-        if(s==1):
-
+        if s == 1:
             self.round_over("throw_"+who)
             self.savegame2("throw_"+who)
-            
-
-
         # tartas/megadas
-
-        elif(s==2):
-
+        elif s == 2:
             if who == "player":
-
                 # ha a kisvak tetet kell betenni
-
                 if self.player_bet == 0 and self.bot_bet == 200:
 
                     self.change_values("player",100,self.all_bet)
@@ -649,34 +620,24 @@ class Logic:
 
                     self.gui.mycardsbutton.config(state="normal")
                     self.gui.changeText(self.gui.infolabel,self.gui.look_info)
-
-
                 else:
-
                     # a jatekos gombjainak tiltasa
-
                     self.gui.changeState([self.gui.giveButton,self.gui.raiseButton,self.gui.throwButton],"disabled")
 
                     # a bot gombjainak tiltasat feloldjuk (ez majd nem kell)
-
                     self.gui.changeState([self.gui.giveButton2,self.gui.raiseButton2,self.gui.throwButton2],"normal")
 
                     # ha a nagyvakot kell betenni
-
                     if self.player_bet == 0 and self.bot_bet == 0:
                         
                         self.gui.mycardsbutton.config(state="normal")
 
                         self.change_values("player",200,self.all_bet)
                         self.savegame3(buf,player200,self.player_money,self.player_bet,self.bot_money,self.bot_bet,self.all_bet)
-
-
                     elif self.player_bet == 100 and self.bot_bet == 200:
 
                         self.change_values("player",100,self.all_bet)
                         self.savegame3(buf,player100,self.player_money,self.player_bet,self.bot_money,self.bot_bet,self.all_bet)
-
-
                     elif self.player_bet <= self.bot_bet:
 
                         self.change_values("player",self.bot_bet-self.player_bet,self.all_bet)
@@ -685,19 +646,14 @@ class Logic:
                     if self.end == 0:
                         self.bot.send_to_bot("adas",self.player_money,self.player_bet,self.bot_money,self.bot_bet) ## TODO
                 self.gui.all_bet_playerlabel.config(text=self.player_bet)
-                
-                
                 self.continue1()
 
             elif who == "bot":
 
                 # a jatekos gombjainak tiltasat feloldjuk
-
                 self.gui.changeState([self.gui.giveButton,self.gui.raiseButton,self.gui.throwButton],"normal")
 
-
                 # a bot gombjait tiltjuk (ez majd nem kell)
-
                 self.gui.changeState([self.gui.giveButton2,self.gui.raiseButton2,self.gui.throwButton2],"disabled")
 
                 if self.bot_bet == 0 and self.player_bet == 200:
@@ -714,7 +670,6 @@ class Logic:
                     self.change_values("bot",200,self.all_bet)
                     self.savegame3(buf,bot200,self.player_money,self.player_bet,self.bot_money,self.bot_bet,self.all_bet)
 
-
                 elif self.bot_bet == 100 and self.player_bet == 200:
 
                     self.change_values("bot",100,self.all_bet)
@@ -726,16 +681,11 @@ class Logic:
                    
                     self.savegame3(buf,"bot_give:"+str(self.player_bet-self.bot_bet),self.player_money,self.player_bet,self.bot_money,self.bot_bet,self.all_bet)
 
-                
                 self.continue1()
-
-
                 self.gui.all_bet_botlabel.config(text=self.bot_bet)
-            
 
         # emelunk
-
-        elif(s==3):
+        elif s == 3:
 
             emel = 500
 
@@ -782,34 +732,26 @@ class Logic:
         info = self.gui.infolabel.cget("text")
         if info not in self.gui.tie_info and info not in self.gui.botwin_info and info not in self.gui.youwin_info:
 
-
             self.gui.label_sum.config(text=str(self.player_money))
             self.gui.label_sum_bot.config(text=str(self.bot_money))
 
-##        bet = player_bet+bot_bet
-##        player_bet = int(self.gui.all_bet_playerlabel.cget("text"))
-##        bot_bet = int(self.gui.all_bet_botlabel.cget("text"))
+            # bet = player_bet+bot_bet
+            # player_bet = int(self.gui.all_bet_playerlabel.cget("text"))
+            # bot_bet = int(self.gui.all_bet_botlabel.cget("text"))
         self.gui.all_bet.config(text=str(self.all_bet))
 
-            
-
     def give(self, **options):
-
         # zsetoncsorges hangja:
-
         self.gui.playsound(type1="1")
 
         # tet meagadasa/tartasa
-
-        self.moneyinf(2,options.get("who"))
+        self.moneyinf(2, options.get("who"))
 
     def continue1(self):
 
-        if self.player_bet == self.bot_bet and self.decision>=1:
+        if self.player_bet == self.bot_bet and self.decision >= 1:
 
-        
             # megnezzuk, hol tart a jatek
-
             # ha a 3. lap nincs felforditva, akkor a flop kovetkezik
 
             if self.gui.card[2].cget("text") == "back":
@@ -817,7 +759,7 @@ class Logic:
 
                 self.savegame2([self.gui.maincards[0:3]])
                 self.bot.send_to_bot_cards(self.gui.maincards[0:3])
-                #send_to_bot(self.gui.maincards[0:3])
+                # send_to_bot(self.gui.maincards[0:3])
 
             # ha a 4. lap nincs felforditva (1-3 igen), akkor a turn kovetkezik
 
@@ -825,14 +767,14 @@ class Logic:
                 self.showmaincards(type1="turn")
 
                 self.bot.send_to_bot_cards(self.gui.maincards[3:4])
-                #send_to_bot(self.gui.maincards[3:4])
+                # send_to_bot(self.gui.maincards[3:4])
 
             # ha az 5. lap nincs felforditva (1-4 igen), akkor a river kovetkezik
             elif self.gui.card[4].cget("text") == "back":
                 self.showmaincards(type1="river")
 
                 self.bot.send_to_bot_cards(self.gui.maincards[4:])
-                #send_to_bot(self.gui.maincards[4:])
+                # send_to_bot(self.gui.maincards[4:])
                 self.end = 1
 
             # ha mindegyik fel van forditva, vege a kornek
@@ -840,14 +782,12 @@ class Logic:
             else:
 
                 # ha nem tortent dobas
-
-                if  self.throw1 ==0:
+                if self.throw1 == 0:
                 
                     self.round_over("evaluate")
                     self.savegame2(["evaluate"])
 
             self.decision = 0
-
 
     def raise1(self, who):
 
@@ -855,133 +795,29 @@ class Logic:
         self.gui.playsound(type1="2")
 
         # megvaltoztatjuk a tetet
-        self.moneyinf(3,who)
+        self.moneyinf(3, who)
 
         # self.moneyinf(3,options.get("who"))
 
-
         # atadjuk a botnak az iranyitast,  3 - emeles tortent
 
-        #bot_turn(3)
+        # bot_turn(3)
 
     def throw(self, **options):
 
-        self.moneyinf(1,options.get("who"))
+        self.moneyinf(1, options.get("who"))
 
         self.gui.playsound(type1="3")
         self.round_over(options.get("who"))
 
     # kiertekeles
-
     def evaluate(self, table):
+        compared = CardCl.who_win(table[7:], table[0:2], table[2:7])  # player, bot, table sorrend
+        # compared, playerhand, bothand = cc.who_win(table[0:2],table[7:],table[2:7],get_hands=True)
 
-        comppoints=0;
-        finalcomppoints=0;
-        finalplayerpoints=0;
-        colors=[]
-        numbers=[]
+        if compared == 0:
 
-        for k in range(0,2):
-
-            if(k==0):
-                a0=table[0][:1]
-                b0=int(table[0][1:])
-                a1=table[1][:1]
-                b1=int(table[1][1:])
-            else:
-                a0=table[7][:1]
-                b0=int(table[7][1:])
-                a1=table[8][:1]
-                b1=int(table[8][1:])
-            a2=table[2][:1]
-            b2=int(table[2][1:])
-            a3=table[3][:1]
-            b3=int(table[3][1:])
-            a4=table[4][:1]
-            b4=int(table[4][1:])
-            a5=table[5][:1]
-            b5=int(table[5][1:])
-            a6=table[6][:1]
-            b6=int(table[6][1:])
-            y=10;
-            for j in range(0,3):
-                if(j==0):
-                    iterlist=[(a2,b2),(a3,b3),(a4,b4),(a5,b5),(a6,b6)]
-                    iterlist=list(itertools.combinations(iterlist,3))
-                else:
-                    y=5;
-                    iterlist=[(a2,b2),(a3,b3),(a4,b4),(a5,b5),(a6,b6)]
-                    iterlist=list(itertools.combinations(iterlist,4))
-                for i in range(0,y):
-
-                    #colors.clear()
-                    #numbers.clear()
-
-                    del colors[:]
-                    del numbers[:]
-
-                    if (j==0):
-                        colors.append(a1)
-                        colors.append(a0)
-                    elif(j==1):
-                        colors.append(a0)
-                        colors.append(iterlist[i][3][0])
-                    elif(j==2):
-                        colors.append(a1)
-                        colors.append(iterlist[i][3][0])
-                    colors.append(iterlist[i][0][0])
-                    colors.append(iterlist[i][1][0])
-                    colors.append(iterlist[i][2][0])
-                    #colors.append(a5)
-                    #colors.append(a6)
-
-                    if(j==0):
-                        numbers.append(b0)
-                        numbers.append(b1)
-                    elif(j==1):
-                        numbers.append(iterlist[i][3][1])
-                        numbers.append(b1)
-                    elif(j==2):
-                        numbers.append(b0)
-                        numbers.append(iterlist[i][3][1])
-                    numbers.append(iterlist[i][0][1])
-                    numbers.append(iterlist[i][1][1])
-                    numbers.append(iterlist[i][2][1])
-                    #numbers.append(b5)
-                    #numbers.append(b6)
-                    numbers.sort();
-                    #if all(x >= 2 for x in (A, B, C, D)):
-                    if (all(x in numbers for x in [1,10,11,12,13])) and (colors[0]==colors[1]==colors[2]==colors[3]==colors[4]):
-                        comppoints=9;# royal flush
-                    elif colors[0]==colors[1]==colors[2]==colors[3]==colors[4] and numbers[0]+1==numbers[1] and numbers[1]+1==numbers[2] and numbers[2]+1==numbers[3] and numbers[3]+1==numbers[4]:
-                        comppoints=8;#szinsor
-                    elif numbers.count(numbers[0])==4 or numbers.count(numbers[1])==4 or numbers.count(numbers[2])==4 or numbers.count(numbers[3])==4 or numbers.count(numbers[4])==4:
-                        comppoints=7;#poker
-                    elif (numbers.count(numbers[0])==3 or numbers.count(numbers[1])==3 or numbers.count(numbers[2])==3 or numbers.count(numbers[3])==3 or numbers.count(numbers[4])==3) and (numbers.count(numbers[0])==2 or numbers.count(numbers[1])==2 or numbers.count(numbers[2])==2 or numbers.count(numbers[3])==2 or numbers.count(numbers[4])==2):
-                        comppoints=6;#full house
-                    elif colors[0]==colors[1]==colors[2]==colors[3]==colors[4]:
-                        comppoints=5;#flush
-                    elif (numbers[0]+1==numbers[1] and numbers[1]+1==numbers[2] and numbers[2]+1==numbers[3] and numbers[3]+1==numbers[4]) or (numbers==[1,10,11,12,13]):
-                        comppoints=4;#sor
-                    elif numbers.count(numbers[0])==3 or numbers.count(numbers[1])==3 or numbers.count(numbers[2])==3 or numbers.count(numbers[3])==3 or numbers.count(numbers[4])==3:
-                        comppoints=3;#drill
-                    elif (numbers[0]==numbers[1] and (numbers[2]==numbers[3] or numbers[3]==numbers[4])) or (numbers[1]==numbers[2] and numbers[3]==numbers[4]):
-                        comppoints=2;#dupla par
-                    elif numbers.count(numbers[0])==2 or numbers.count(numbers[1])==2 or numbers.count(numbers[2])==2 or numbers.count(numbers[3])==2 or numbers.count(numbers[4])==2:
-                        comppoints=1;#par
-                    else:
-                        comppoints=0;#magas lap
-                    if(finalcomppoints<comppoints and k==0):
-                        finalcomppoints=comppoints;
-                    elif(finalplayerpoints<comppoints and k!=0):
-                        finalplayerpoints=comppoints;
-
-        bet = int(self.gui.all_bet.cget("text"))
-
-
-        if(finalplayerpoints==finalcomppoints):
-
-            verdict="Dontetlen!"
+            verdict = "Dontetlen!"
             self.player_money += self.player_bet
             self.bot_money += self.bot_bet
 
@@ -989,29 +825,26 @@ class Logic:
             self.update_bot_tokens()
             self.update_player_tokens()
 
-            self.gui.changeText(self.gui.infolabel,self.gui.tie_info)
+            self.gui.changeText(self.gui.infolabel, self.gui.tie_info)
             self.savegame2(["Tie"])
             self.gui.label_sum.config(text=str(self.player_money))
             self.gui.label_sum_bot.config(text=str(self.bot_money))
 
-        elif(finalplayerpoints<finalcomppoints):
+        elif compared == -1:
 
-            verdict="A gep nyert!"
-
+            verdict = "A gep nyert!"
 
             self.bot_money += self.all_bet
 
             self.bot_get_tokens()
             self.update_bot_tokens()
-           
-                        
+
             self.gui.label_sum_bot.config(text=str(self.bot_money))
-            self.gui.changeText(self.gui.infolabel,self.gui.botwin_info)
+            self.gui.changeText(self.gui.infolabel, self.gui.botwin_info)
             self.savegame2(["Bot wins"])
 
-
         else:
-            verdict="Te nyertel!"
+            verdict = "Te nyertel!"
 
             self.player_money += self.all_bet
 
@@ -1019,7 +852,7 @@ class Logic:
             self.update_player_tokens()
 
             self.gui.label_sum.config(text=str(self.player_money))
-            self.gui.changeText(self.gui.infolabel,self.gui.youwin_info)
+            self.gui.changeText(self.gui.infolabel, self.gui.youwin_info)
             self.savegame2(["Player wins"])
 
         return verdict

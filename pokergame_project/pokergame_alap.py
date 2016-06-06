@@ -179,7 +179,8 @@ class Logic:
                 answer2 = tkMessageBox.askquestion("Save", "Save game first?", icon="warning")
             elif self.gui.language == ['hungarian']:
                 answer2 = tkMessageBox.askquestion("Mentes", "Mentsem a jelenlegi jatekot?", icon="warning")
-            else: answer = no
+            else:
+                answer2 = "no"
 
             if answer2 == "yes":
                 self.savegame()

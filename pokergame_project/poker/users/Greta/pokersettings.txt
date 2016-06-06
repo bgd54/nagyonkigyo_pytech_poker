@@ -1,0 +1,4 @@
+Language: hungarian
+Sound: off
+Style: blue3
+Background style: green

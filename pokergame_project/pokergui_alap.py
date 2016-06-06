@@ -1,18 +1,40 @@
-import Tkinter as tk
+
 from PIL import ImageTk, Image
 import random
 import time
-##import winsound
 import os
 import platform
+import sys
+
+if sys.version_info[0] < 3:
+    import Tkinter as tk
+else:
+    import tkinter as tk
+
+import proba_plot
+
+
 
 
 class PokerGui:
     def __init__(self):
         self.logic = None
         self.master = tk.Tk()
+
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         self.path = os.path.join(BASE_DIR, "poker")+os.path.sep
+        self.users_path = os.path.join(self.path, "users")+os.path.sep
+
+        self.players =[]
+        self.get_players()
+        self.current_user_path = os.path.join(self.path, "users","random")+os.path.sep
+        self.player = tk.StringVar()
+        self.player.set("")
+
+        self.get_current_user()
+
+        
+             
 
         # Feliratok, nyelvek
 
@@ -20,8 +42,14 @@ class PokerGui:
 
         self.languages = []
         self.subtitles=[]
+        
 
         self.infolabels = []
+
+        # egyeb
+        
+        self.mode = "active"
+        self.chat = "on"
 
         for i in range(7):
             self.infolabels.append([])
@@ -60,7 +88,7 @@ class PokerGui:
         self.sample_images = []
         self.image_names = []
         
-        self.get_pictures()
+        #self.get_pictures()
         
         self.rules_pic = ["rules.png","rules2.png"]
 
@@ -68,7 +96,24 @@ class PokerGui:
         self.cardback_smalls = []
         self.cardback_larges = []
 
+        self.white_tokens = []
+        self.blue_tokens  = []
+        self.green_tokens = []
+        self.red_tokens = []
+        self.black_tokens = []
+            
+        self.table2_images  = []
+        self.table_part_images = []
+        self.table_part2_images = []
+
+        self.table_samples = []
+
         self.styles = []
+        self.background_styles = []
+
+        self.background_names = []
+        self.background_sample_images = []
+            
         
         self.give_style("red","cardback.png")
         self.give_style("red2","cardback4.png")
@@ -80,17 +125,24 @@ class PokerGui:
         self.give_style("blue2","cardback_blue2.png")
         self.give_style("blue3","cardback_blue3.png")
         self.give_style("blue4","cardback_blue4.png")
+
+        self.give_background_style("green","")
+        self.give_background_style("blue","_blue1")
+        self.give_background_style("blue2","_blue2")
                
 
         # Cimsor
 
         self.master.wm_title("Nagyonkigyo poker")
         self.master.tk.call("wm", "iconphoto", self.master._w, self.img_blue3)
+        
 
         # Kilepes
 
         def destroy():
             self.save_settings()
+            self.save_last_player()
+            
             self.master.destroy()
 
         self.master.protocol("WM_DELETE_WINDOW", destroy)
@@ -100,6 +152,7 @@ class PokerGui:
         self.language = ["english"]
         self.sound = "off"
         self.style = "red"
+        self.background_style = "green"
 
         self.cardpictures = []
         self.cardpictures2 = []
@@ -110,6 +163,7 @@ class PokerGui:
 
         self.read_settings()
         self.get_style()
+        self.get_background_style()
 
         vakok = tk.Frame(self.master)
         self.kisvak = tk.Label(vakok,text='')
@@ -137,7 +191,8 @@ class PokerGui:
 
         self.create_bot_cards()
         self.create_bot_buttons()
-        self.hide([self.buttons_bot])
+        if self.mode != "test":
+            self.hide([self.buttons_bot])
             
         self.create_bot_labelsum()
         self.create_tokenlabels(self.zseton2)
@@ -179,6 +234,7 @@ class PokerGui:
         self.new_separator(self.master,0,50,0,0)
 
         self.new_separator(self.master,300,0,1,0)
+
         self.zsetonsum_bot.grid(row=1,column=1)
         self.zseton2.grid(row=1,column=2)
         self.cards_others.grid(row=1,column=4)
@@ -191,6 +247,38 @@ class PokerGui:
         self.buttons.grid(row=3,column=6)
 
         self.new_separator(self.master,0,10,4,0)
+        self.new_separator(self.master,0,10,5,0)
+        
+
+        if self.chat == "on":
+            self.chat_frame = tk.Frame(self.master)
+            self.chat_frame1 = tk.Frame(self.chat_frame)
+            self.chat_frame2 = tk.Frame(self.master)
+            self.scrollbar = tk.Scrollbar(self.chat_frame1)
+            self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+##
+            self.text = tk.Text(self.chat_frame1, wrap=tk.WORD,width=15,height=5,yscrollcommand=self.scrollbar.set)
+##            self.text.insert(tk.END, "hello, ")
+            self.text.pack()
+##
+            self.scrollbar.config(command=self.text.yview)
+
+            def on_entry_click(event):
+                self.chat_entry.delete(0, tk.END)
+
+            
+            
+            self.chat_entry = tk.Entry(self.chat_frame2,width=23)
+            self.chat_entry.insert(0, "You can write here")
+            self.chat_entry.bind("<Return>", self.send_message)
+            self.chat_entry.bind('<FocusIn>', on_entry_click)
+            
+            self.chat_entry.grid(row=0,column=0,sticky='S')
+            self.chat_frame.grid(row=5,column=0,sticky='N')
+            self.chat_frame1.grid(row=0,column=0)
+            self.chat_frame2.grid(row=4,column=0)
+         
+            
         
         self.cards_mine2.grid(row=5,column=1)
         self.cards_mine.grid(row=5,column=2)
@@ -201,7 +289,7 @@ class PokerGui:
         self.new_separator(self.master,0,50,6,0)
 
 
-        self.master.grid_columnconfigure(0,weight=1)
+        self.master.grid_columnconfigure(0,weight=10)
         self.master.grid_columnconfigure(1,weight=300)
         self.master.grid_columnconfigure(2,weight=1)
         self.master.grid_columnconfigure(3,weight=200)
@@ -357,11 +445,16 @@ class PokerGui:
         tk.Label(frame, text="(25)").grid(row=3)
         tk.Label(frame, text="(100)").grid(row=4)
 
-        tk.Label(frame, image=self.img_white2).grid(row=0,column=1)
-        tk.Label(frame, image=self.img_red2).grid(row=1,column=1)
-        tk.Label(frame, image=self.img_blue2).grid(row=2,column=1)
-        tk.Label(frame, image=self.img_green2).grid(row=3,column=1)
-        tk.Label(frame, image=self.img_black2).grid(row=4,column=1)
+        frame.white_pic = tk.Label(frame, image=self.img_white2)
+        frame.white_pic.grid(row=0,column=1)
+        frame.red_pic = tk.Label(frame, image=self.img_red2)
+        frame.red_pic.grid(row=1,column=1)
+        frame.blue_pic = tk.Label(frame, image=self.img_blue2)
+        frame.blue_pic.grid(row=2,column=1)
+        frame.green_pic = tk.Label(frame, image=self.img_green2)
+        frame.green_pic.grid(row=3,column=1)
+        frame.black_pic = tk.Label(frame, image=self.img_black2)
+        frame.black_pic.grid(row=4,column=1)
 
         for h in range(5):
 
@@ -481,8 +574,10 @@ class PokerGui:
 
                     if platform.system() == "Windows":
 
-                        pass
-                        """if options.get("type1") == "1":
+                        import winsound
+
+                        
+                        if options.get("type1") == "1":
                                 winsound.PlaySound(self.path+"poker1.wav",winsound.SND_FILENAME)
                         elif options.get("type1") == "2": 
                                 winsound.PlaySound(self.path+"poker1.wav",winsound.SND_FILENAME)
@@ -490,11 +585,33 @@ class PokerGui:
 
                         elif options.get("type1") == "3":
                                 winsound.PlaySound(self.path+"cardShove4.wav",winsound.SND_FILENAME)
-                        """
+                        
                     elif platform.system() == "Linux":
 
                         print "linux"
 
+
+    # Chat
+
+    def send_message_bot(self,message):
+        s = "\nBot:"+message
+        self.text.config(state=tk.NORMAL)               
+        self.text.insert(tk.END, s)
+        self.text.yview(tk.END)
+        self.text.config(state=tk.DISABLED)
+
+    def send_message(self,event):
+                
+                
+        if self.chat_entry.get().startswith(' '):
+            s = "\nPlayer:"+self.chat_entry.get()
+        else:
+            s = "\nPlayer: "+self.chat_entry.get()
+        self.chat_entry.delete(0, tk.END)
+        self.text.config(state=tk.NORMAL)
+        self.text.insert(tk.END, s)
+        self.text.yview(tk.END)
+        self.text.config(state=tk.DISABLED)
 
     # Kepek es stilusok
 
@@ -509,30 +626,15 @@ class PokerGui:
                 image2 = ImageTk.PhotoImage(image1)
             return image2
 
-    def get_pictures(self):
-            
-            self.img_blue2 = self.load_picture("blue.png","resize",self.token_size[0],self.token_size[1])
-            self.img_green2 = self.load_picture("green.png","resize",self.token_size[0],self.token_size[1])
-            self.img_red2 = self.load_picture("red.png","resize",self.token_size[0],self.token_size[1])
-            self.img_black2 = self.load_picture("black.png","resize",self.token_size[0],self.token_size[1])
-            self.img_white2 = self.load_picture("white.png","resize",self.token_size[0],self.token_size[1])
-
-
-            self.table2 = self.load_picture("table2.png","resize",self.main_size[0],self.main_size[1])
-            self.table_part = self.load_picture("table_part2.png","resize",self.table_part_size[0],self.table_part_size[1])
-            self.table_part2 = self.load_picture("table_part2.png","resize",self.token_size[0],self.token_size[1])
-            
-            self.img_blue3 = self.load_picture("blue1.png","resize",self.token_size[0],self.token_size[1])
-
     def changeImages(self,elemek,images):
 
         for i in range(len(elemek)):
-            if len(elemek) == len(images):
+            if len(elemek) == len(images) and len(images)!=1:
                 if elemek[i].cget("text") == "back" or elemek[i].cget("text") == "ready":
                     elemek[i].config(image=images[i])
             elif len(images) == 1:
-                if elemek[i].cget("text") == "back" or elemek[i].cget("text") == "ready":
-                    elemek[i].config(image=images[0])
+                #if elemek[i].cget("text") == "back" or elemek[i].cget("text") == "ready":
+                elemek[i].config(image=images[0])
 
     def give_style(self,style, pic_name):
 
@@ -551,6 +653,41 @@ class PokerGui:
 
             except: IOError
 
+    def give_background_style(self,style, pic_name):
+
+        try:
+            
+            self.img_blue2 = self.load_picture("blue"+pic_name+".png","resize",self.token_size[0],self.token_size[1])
+            self.img_green2 = self.load_picture("green"+pic_name+".png","resize",self.token_size[0],self.token_size[1])
+            self.img_red2 = self.load_picture("red"+pic_name+".png","resize",self.token_size[0],self.token_size[1])
+            self.img_black2 = self.load_picture("black"+pic_name+".png","resize",self.token_size[0],self.token_size[1])
+            self.img_white2 = self.load_picture("white"+pic_name+".png","resize",self.token_size[0],self.token_size[1])
+
+
+            self.table2 = self.load_picture("table2"+pic_name+".png","resize",self.main_size[0],self.main_size[1])
+            self.table_sample = self.load_picture("table2"+pic_name+".png","resize",self.main_size[0]/10,self.main_size[1]/10)
+            self.table_part = self.load_picture("table_part2"+pic_name+".png","resize",self.table_part_size[0],self.table_part_size[1])
+            self.table_part2 = self.load_picture("table_part2"+pic_name+".png","resize",self.token_size[0],self.token_size[1])
+
+            self.white_tokens.append(self.img_white2)
+            self.blue_tokens.append(self.img_blue2)
+            self.green_tokens.append(self.img_green2)
+            self.red_tokens.append(self.img_red2)
+            self.black_tokens.append(self.img_black2)
+            
+            self.table2_images.append(self.table2)
+            self.table_part_images.append(self.table_part)
+            self.table_part2_images.append(self.table_part2)
+                
+            self.table_samples.append(self.table_sample)
+                
+            self.background_names.append(pic_name)
+            self.background_styles.append(style)
+            
+            self.img_blue3 = self.load_picture("blue1.png","resize",self.token_size[0],self.token_size[1])
+
+        except: IOError
+
     def get_style(self):
 
         s = self.styles.index(self.style)
@@ -558,6 +695,24 @@ class PokerGui:
         self.cardback_large = self.cardback_larges[s]
         self.cardback_sample = self.cardback_samples[s]
         return self.cardback_small,self.cardback_large,self.cardback_sample
+
+    
+
+    def get_background_style(self):
+
+        s = self.background_styles.index(self.background_style)
+        self.img_blue2 = self.blue_tokens[s]
+        self.img_green2 = self.green_tokens[s]
+        self.img_red2 = self.red_tokens[s]
+        self.img_black2 = self.black_tokens[s]
+        self.img_white2 = self.white_tokens[s]
+ 
+        self.table2 = self.table2_images[s]
+        self.table_part = self.table_part_images[s]
+        self.table_part2 = self.table_part2_images[s]
+
+        
+        return self.img_blue2,self.img_green2,self.img_red2,self.img_black2,self.img_white2,self.table2,self.table_part,self.table_part2
 
 
     def resize_images(self,event):
@@ -699,15 +854,16 @@ class PokerGui:
     # Alap beallitasok: nyelv, hang, stilus
 
     def save_settings(self):
-            settings_save=open(self.path+"pokersettings.txt","w")
+            settings_save=open(self.current_user_path+"pokersettings.txt","w")
             settings_save.write("Language: "+self.language[0]+"\n")
             settings_save.write("Sound: "+self.sound+"\n")
             settings_save.write("Style: "+self.style+"\n")
+            settings_save.write("Background style: "+self.background_style+"\n")
             settings_save.close()
 
     def read_settings(self):
             try:
-                settings_read=open(self.path+"pokersettings.txt","r")
+                settings_read=open(self.current_user_path+"pokersettings.txt","r")
                 for line in settings_read.readlines():
                     if "Language" in line:
                         line = line.rstrip("\n")
@@ -721,10 +877,15 @@ class PokerGui:
                         
                         self.sound = str(line.split(": ")[1])
 
-                    elif "Style" in line and "state" not in line:
+                    elif "Style" in line and "background" not in line:
                         line = line.rstrip("\n")
                         if str(line.split(": ")[1]) in  self.styles:
                             self.style = str(line.split(": ")[1])
+
+                    elif "Background" in line:
+                        line = line.rstrip("\n")
+                        if str(line.split(": ")[1]) in  self.background_styles:
+                            self.background_style = str(line.split(": ")[1])
 
                 settings_read.close()
 
@@ -833,7 +994,8 @@ class PokerGui:
         self.settingsmenu.add_command(label="Language",command=self.languageset)
         self.settingsmenu.add_command(label="Sounds",command=self.set_sound)
         self.settingsmenu.add_command(label="Card types",command=self.card_type)
-
+        self.settingsmenu.add_command(label="Background types",command=self.background_type)
+      
         # Szabalyok menu
 
         self.rulesmenu = tk.Menu(self.menubar, tearoff=0)
@@ -843,24 +1005,47 @@ class PokerGui:
 
     # Statisztika, jatekok szama
 
+    
+
     def statistics(self):
 
         stat = tk.Toplevel()
-        #stat.resizable(0,0)
-        #stat.tk.call("wm", "iconphoto", self.master._w, self.img_blue3)
+
+        
+        stat.resizable(0,0)
+        stat.tk.call("wm", "iconphoto", stat._w, self.img_blue3)
 
         label = tk.Label(stat,text="All games: ")
         label2 = tk.Label(stat,text="Lost: ")
         label1 = tk.Label(stat,text="Win: ")
+
+        self.read_statistics()
+
+        label_all = tk.Label(stat,text=str(self.games))
+        label_win = tk.Label(stat,text=str(self.win_games))
+        label_lost = tk.Label(stat,text=str(self.lost_games))
 
         
         self.changeText(label,self.stat_info1)
         self.changeText(label2,self.stat_info2)
         self.changeText(label1,self.stat_info3)
             
-        label.pack()
-        label1.pack()
-        label2.pack()
+        label.grid(row=0,column=0)
+        label1.grid(row=1,column=0)
+        label2.grid(row=2,column=0)
+
+        label_all.grid(row=0,column=1)
+        label_win.grid(row=1,column=1)
+        label_lost.grid(row=2,column=1)
+
+        plot1 = proba_plot.PokerPlot()
+
+        #plot1.root.tk.call("wm", "iconphoto", plot1.root._w, self.img_blue3)
+        plot1.get_image(self.img_blue3)
+
+        plot_button = tk.Button(stat,text="Plot view",command=lambda: plot1.makeplot2(all1=self.games,win=self.win_games,lost=self.lost_games))
+        plot_button.grid(row=3,column=1)
+        
         stat.mainloop()
 
 
@@ -870,6 +1055,7 @@ class PokerGui:
           
         settings = tk.Toplevel()
         settings.resizable(0,0)
+        settings.tk.call("wm", "iconphoto", settings._w, self.img_blue3)
 
         def update_self():
             self.changeText(label,self.choose_lang_info)
@@ -919,6 +1105,7 @@ class PokerGui:
 
         sound_settings = tk.Toplevel()
         sound_settings.resizable(0,0)
+        sound_settings.tk.call("wm", "iconphoto", sound_settings._w, self.img_blue3)
 
         frame = tk.Frame(sound_settings,width = 600)
         frame1 = tk.Frame(sound_settings,width = 600)
@@ -953,6 +1140,7 @@ class PokerGui:
 
         card_types = tk.Toplevel()
         card_types.resizable(0,0)
+        card_types.tk.call("wm", "iconphoto", card_types._w, self.img_blue3)
 
         frame = tk.Frame(card_types,width = 600)
 
@@ -1031,12 +1219,107 @@ class PokerGui:
 
         card_types.mainloop()
 
+
+
+    def background_type(self):
+
+        background_types = tk.Toplevel()
+        background_types.resizable(0,0)
+        background_types.tk.call("wm", "iconphoto", background_types._w, self.img_blue3)
+
+        frame = tk.Frame(background_types,width = 600)
+
+        label = tk.Label(frame,text="Choose")
+        label.pack()
+        frame.pack()
+
+
+        if len(self.background_styles) <= 6:
+            sor = 1
+            column = len(self.background_styles)
+
+        else:
+            if len(self.background_styles)%6 ==0:
+                sor = len(self.background_styles)/6
+                column = 6
+            else:
+                sor = len(self.background_styles)/6+1
+                column = 6              
+
+        background_frame = tk.Frame(background_types)
+        alapframes = [f for f in range(sor)]
+        background_frame.frames = {}
+        frames = []
+
+        columns = [i for i in range(column)]
+
+        labels = []
+
+        select2 = lambda z, event: (lambda u: select_style2(frame = z,num=event))
+
+        for frame in alapframes:
+                
+                background_frame.frames[frame] = tk.Frame(background_frame)
+                background_frame.frames[frame].grid(row=frame,column=0)
+                background_frame.frames[frame].labels = {}
+
+                for col in columns:
+
+                        try:
+
+                            background_frame.frames[frame].labels[col]= tk.Label(background_frame.frames[frame],image=self.table_samples[frame*6+col])
+                            background_frame.frames[frame].labels[col].bind("<Button-1>",select2(frame,col))
+                            background_frame.frames[frame].labels[col].grid(row=0,column=col)
+                            
+                        except: IndexError
+
+                       
+
+        background_frame.pack()
+
+        def select_style2(**options):
+             
+            s = options.get("num")
+            f = options.get("frame")
+
+            for i in range(len(background_frame.frames)):
+
+                for j in range(len(background_frame.frames[i].labels)):
+
+                    background_frame.frames[i].labels[j].configure(bd=0)
+               
+            background_frame.frames[f].labels[s].config(bd=2,bg="yellow")
+
+            self.img_blue2 = self.blue_tokens[f*6+s]
+            self.img_green2 = self.green_tokens[f*6+s]
+            self.img_red2 = self.red_tokens[f*6+s]
+            self.img_black2 = self.black_tokens[f*6+s]
+            self.img_white2 = self.white_tokens[f*6+s]
+ 
+            self.table2 = self.table2_images[f*6+s]
+            
+            self.table_part = self.table_part_images[f*6+s]
+            self.table_part2 = self.table_part2_images[f*6+s]
+
+
+            self.changeImages([self.zseton.white_pic,self.zseton2.white_pic],[self.img_white2])
+            self.changeImages([self.zseton.blue_pic,self.zseton2.blue_pic],[self.img_blue2])
+            self.changeImages([self.zseton.green_pic,self.zseton2.green_pic],[self.img_green2])
+            self.changeImages([self.zseton.red_pic,self.zseton2.red_pic],[self.img_red2])
+            self.changeImages([self.zseton.black_pic,self.zseton2.black_pic],[self.img_black2])
+            self.changeImages([self.mainframe],[self.table2])
+
+            self.background_style = self.background_styles[f*6+s]
+
+        background_types.mainloop()
+
      # Szabalyok
             
     def ranking(self):
 
         rank = tk.Toplevel()
         rank.resizable(0,0)
+        rank.tk.call("wm", "iconphoto", rank._w, self.img_blue3)
         
         index1 = self.languages.index(self.language[0])
         img_rank2 = self.load_picture(self.rules_pic[index1],"resize",210,390)
@@ -1045,3 +1328,198 @@ class PokerGui:
         label.pack()
 
         rank.mainloop()
+
+
+    # Kulon felhasznalok
+
+    def update_all(self):
+
+        self.read_settings()
+
+        self.get_style()
+        self.get_background_style()
+        
+        self.changeImages([self.zseton.white_pic,self.zseton2.white_pic],[self.img_white2])
+        self.changeImages([self.zseton.blue_pic,self.zseton2.blue_pic],[self.img_blue2])
+        self.changeImages([self.zseton.green_pic,self.zseton2.green_pic],[self.img_green2])
+        self.changeImages([self.zseton.red_pic,self.zseton2.red_pic],[self.img_red2])
+        self.changeImages([self.zseton.black_pic,self.zseton2.black_pic],[self.img_black2])
+        self.changeImages([self.mainframe],[self.table2])
+
+        self.changeImages([self.card[0],self.card[1],self.card[2],self.card[3],self.card[4]],[self.cardback_large])
+        self.changeImages([self.card_others1,self.card_others2,self.card_mine1,self.card_mine2],[self.cardback_small])
+
+        
+    def save_last_player(self):
+        try:
+            
+            user_write=open(self.path+"current_user.txt","w")
+            user_write.write(self.player.get())
+
+
+            user_write.close()
+
+        except IOError:
+            pass
+        
+
+    def get_players(self):
+
+        try:
+
+            for dirname in os.listdir(self.users_path):
+
+                if os.path.isdir(self.users_path+'\\'+dirname):
+            
+                    self.players.append(str(dirname))
+        except:
+            print "no existing user"
+
+    def select_player(self):
+
+        player_identify = tk.Toplevel()
+        player_identify.tk.call("wm", "iconphoto", player_identify._w, self.img_blue3)
+       
+        player_identify.grab_set()
+        
+        player_identify.resizable(0,0)
+
+        self.get_current_user()
+       
+        welcome_1 = tk.Label(player_identify,text="Hello!",width=100)
+        welcome_1.grid(row=0)
+
+        frame1 = tk.Frame(player_identify)
+
+        frame1.grid(row=1)
+
+        frame2 = tk.Frame(player_identify)
+
+        frame2.grid(row=2)
+
+        def say_hello():
+
+
+            message = " Hello, "+str(self.player.get())
+            self.send_message_bot(message)
+            player_identify.destroy()
+
+        player_identify.protocol("WM_DELETE_WINDOW", say_hello)
+
+        
+       
+
+        def update_current_player():
+
+            directory = os.path.join(self.users_path,self.player.get())+os.path.sep
+            self.current_user_path = directory
+            
+            self.update_all()
+
+        def create_radio_buttons():
+
+            for child in frame1.winfo_children():
+                child.destroy()
+
+            players = [f for f in range(len(self.players))]
+            frame1.buttons = {}
+            buttons = []
+
+            for player in players:
+
+                frame1.buttons[player] = tk.Radiobutton(frame1,variable = self.player,value=self.players[player],text=self.players[player],command=update_current_player)
+                frame1.buttons[player].grid(row=player)
+                if self.players[player] == self.player:
+                    frame1.buttons[player].configure(bg="green")
+
+        
+        create_radio_buttons()  
+
+
+        def create_new_player(event):
+            new_player_name = new_player.get()
+            directory = os.path.join(self.users_path,new_player_name)+os.path.sep
+            if not os.path.exists(directory):
+                try:
+                    os.makedirs(directory)
+                    self.current_user_path = directory
+                    self.player.set(str(new_player_name))
+                    self.players.append(self.player.get())
+                    create_radio_buttons()
+                except:
+                    new_player.delete(0,tk.END)
+                    new_player_info_label.config(text="Wrong name, try something else (without special characters)")
+            
+
+        new_player_label = tk.Label(frame2,text="New player: ")
+        new_player_info_label = tk.Label(frame2,text="")
+
+        new_player = tk.Entry(frame2)
+        new_player_label.grid(row=0,column=0)
+        new_player.grid(row=0,column=1)
+        new_player_info_label.grid(row=1,column=0)
+        new_player.bind("<Return>", create_new_player)
+        
+
+        player_identify.mainloop()
+
+    def get_current_user(self):
+        try:
+            user_read=open(self.path+"current_user.txt","r")
+            for line in user_read.readlines():
+                
+                user = line.rstrip("\n")
+                self.current_user_path = os.path.join(self.path, "users",user)+os.path.sep
+                self.player.set(user)
+
+
+            user_read.close()
+
+        except IOError:
+            pass
+
+    
+
+    def read_statistics(self):
+        
+        
+        try:
+
+            self.games = 0
+            self.win_games = 0
+            self.lost_games = 0
+
+            user_stat=open(self.current_user_path+self.player.get()+"_statistics.txt","r")
+            for line in user_stat.readlines():
+
+                if "All" in line:
+                    line = line.rstrip("\n")
+                    self.games = str(line.split(": ")[1])
+                elif "Win" in line:
+                    line = line.rstrip("\n")
+                    self.win_games = str(line.split(": ")[1])
+                elif "Lost" in line:
+                    line = line.rstrip("\n")
+                    self.lost_games = str(line.split(": ")[1])
+
+            user_stat.close()
+
+        except IOError:
+            pass
+
+    def save_statistics(self,i,j):
+
+        self.read_statistics()
+
+        try:
+            
+            user_stat=open(self.current_user_path+self.player.get()+"_statistics.txt","w")
+            user_stat.write("All games: "+str(int(self.games)+1)+"\n")
+            user_stat.write("Win: "+str(int(self.win_games)+i)+"\n")
+            user_stat.write("Lost: "+str(int(self.lost_games)+j)+"\n")
+            user_stat.close()
+
+        except IOError:
+            pass
+     
+        

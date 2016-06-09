@@ -11,7 +11,7 @@ if sys.version_info[0] < 3:
 else:
     import tkinter as tk
 
-# import proba_plot
+import proba_plot
 
 
 class PokerGui:
@@ -1367,11 +1367,12 @@ class PokerGui:
 
             for dirname in os.listdir(self.users_path):
 
-                if os.path.isdir(self.users_path+'\\'+dirname):
+                if os.path.isdir(os.path.join(self.users_path,dirname)):
             
                     self.players.append(str(dirname))
         except:
             print "no existing user"
+
 
     def select_player(self):
 

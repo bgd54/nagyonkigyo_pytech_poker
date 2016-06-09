@@ -1,4 +1,3 @@
-import pickle
 from sklearn.externals import joblib
 import CardClassificator
 import pokergame_alap
@@ -60,7 +59,6 @@ class PokerBot:
         self._game_score = new_score
 
     def setIsPreFlop(self, val):
-        print(val)
         self._is_preflop = val
 
     def giveBlind(self):

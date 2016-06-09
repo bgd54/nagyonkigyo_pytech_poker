@@ -11,7 +11,11 @@ import sys
 if sys.version_info[0] < 3:
     import Tkinter as Tk
 else:
+<<<<<<< HEAD
     import tkinter as Tk
+=======
+    import tkinter as Tk             	
+>>>>>>> c46a1a7b651510bf5750162edeebf88aea58f5ce
 
 matplotlib.use('TkAgg')
 class PokerPlot:

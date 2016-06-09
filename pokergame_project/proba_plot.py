@@ -10,9 +10,9 @@ from matplotlib.figure import Figure
 import sys
 
 if sys.version_info[0] < 3:
-    import Tkinter as tk
+    import Tkinter as Tk
 else:
-    import tkinter as tk             	
+    import tkinter as Tk             	
 
 class PokerPlot:
 

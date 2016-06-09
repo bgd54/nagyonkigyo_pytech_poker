@@ -2,6 +2,7 @@
 # -*- coding: utf8 -*-
 
 import matplotlib
+matplotlib.use('TkAgg')
 import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
@@ -11,9 +12,8 @@ import sys
 if sys.version_info[0] < 3:
     import Tkinter as Tk
 else:
-    import tkinter as Tk
+    import tkinter as Tk             	
 
-matplotlib.use('TkAgg')
 class PokerPlot:
 
     def get_image(self,image):
@@ -66,13 +66,15 @@ class PokerPlot:
         self.a2.set_xticklabels(('All games','Win','Lost'))
 
         def autolabel(rects):
-            for rect in rects:
-                height = rect.get_height()
-                self.a2.text(rect.get_x()+rect.get_width()/2., 1.02*height, '%i'%int(height),
-                             ha='center', va='bottom',size='8')
+	    
+	    for rect in rects:
+	        height = rect.get_height()
+		self.a2.text(rect.get_x()+rect.get_width()/2., 1.02*height, '%i'%int(height),
+			ha='center', va='bottom',size='8')
 
         autolabel(self.rects1)
+   
+
 
         self.canvas.show()
         self.root.mainloop()
-

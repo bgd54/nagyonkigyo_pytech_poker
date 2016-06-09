@@ -257,6 +257,7 @@ class Logic:
 
         self.statistics.set_state(Statistics.PRE_FLOP)  # Statistics
         self.curr_game_tree = GameTree.PreFlopTree()  # Gametree
+        self.bot.setIsPreFlop(True)
 
         # Gui elemek atallitasa (kartyak hatoldala, gombok letiltasa?)
 
@@ -293,7 +294,6 @@ class Logic:
             self.gui.raiseButton.config(state="disabled")
             self.gui.throwButton.config(state="disabled")
 
-            self.bot.setIsPreFlop(True)
             self.bot.giveBlind()
             self.bot.setCurrentHand(self.gui.othercards[:])
             # self.bot.send_to_bot("kezdes",self.player_money,self.player_bet,self.bot_money,self.bot_bet)

@@ -2,15 +2,16 @@ import pickle
 from sklearn.externals import joblib
 import CardClassificator
 import pokergame_alap
+
 __author__ = 'szlge'
 
 
 class PokerBot:
 
     # a current_hand egy list, amiben szin-ertek parok vannak felsorolva
-    def __init__(self, logic, current_hand = None, statistics = None):
+    def __init__(self, logic, current_hand=None, statistics=None):
 
-        self._estimator = joblib.load('traineddata.pkl')
+        self._estimator = joblib.load('train/traineddata_27.pkl')
         self._current_hand = current_hand
         self._is_preflop = True
         self._game_score = 0  # az eddig jateklepesek alapjan kapott erteket tartja nyilvan
@@ -59,13 +60,14 @@ class PokerBot:
         self._game_score = new_score
 
     def setIsPreFlop(self, val):
+        print(val)
         self._is_preflop = val
 
     def giveBlind(self):
 
         self._logic.give(who="bot")
 
-    def setCurrentHand(self, current_hand, form):
+    def setCurrentHand(self, current_hand, form=False):
 
         self._current_hand = current_hand if form else CardClassificator.format_converter(current_hand)
 
@@ -97,9 +99,11 @@ class PokerBot:
 
                 decision = 2
                 return decision
+            elif hand_value > 0:
+                return 1
 
         else:
-
+            print(self._current_hand)
             hand_value = self.randomHandEvaluation()
 
             if hand_value >= 5:

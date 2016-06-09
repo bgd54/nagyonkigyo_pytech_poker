@@ -848,7 +848,6 @@ class Logic:
         self.moneyinf(1, options.get("who"))
 
         self.gui.playsound(type1="3")
-        self.round_over(options.get("who"))
 
     # kiertekeles
     def evaluate(self, table):

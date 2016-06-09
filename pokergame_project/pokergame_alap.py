@@ -497,6 +497,7 @@ class Logic:
                 self.gui.changeText(self.gui.infolabel, self.gui.botwin_info)
 
                 self.savegame2(["Bot wins"])
+                self.gui.save_statistics(0,1)
 
         elif case == "throw_bot":
 
@@ -511,6 +512,7 @@ class Logic:
                 self.gui.changeText(self.gui.infolabel, self.gui.youwin_info)
 
                 self.savegame2(["Player wins"])
+                self.gui.save_statistics(1,0)
 
         elif case == "evaluate":
             
@@ -881,6 +883,7 @@ class Logic:
             self.gui.label_sum_bot.config(text=str(self.bot_money))
             self.gui.changeText(self.gui.infolabel, self.gui.botwin_info)
             self.savegame2(["Bot wins"])
+            self.gui.save_statistics(0,1)
 
         else:
             verdict = "Te nyertel!"
@@ -893,3 +896,4 @@ class Logic:
             self.gui.label_sum.config(text=str(self.player_money))
             self.gui.changeText(self.gui.infolabel, self.gui.youwin_info)
             self.savegame2(["Player wins"])
+            self.gui.save_statistics(1,0)

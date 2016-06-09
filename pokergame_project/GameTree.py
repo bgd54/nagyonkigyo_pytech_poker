@@ -53,6 +53,9 @@ class GameTree(object):
     def generateTree(self):
         raise NotImplementedError
 
+    def getScore(self):
+        return self._currentnode._score
+
     def simulationhelper(self, value):
 
             if value == 0:

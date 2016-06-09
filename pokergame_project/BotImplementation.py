@@ -1,13 +1,16 @@
-import sklearn
+#!/usr/bin/python
+# -*- coding: utf8 -*-
+
 from sklearn.externals import joblib
 import CardClassificator
+import os
 
 class PokerBot:
     
     # a current_hand egy list, amiben szin-ertek parok vannak felsorolva
     def __init__(self, logic, current_hand = None, statistics = None):
-        
-        self._estimator = joblib.load('traineddata.pkl')
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        self._estimator = joblib.load(os.path.join(base_dir, 'train', 'traineddata_27.pkl'))
         self._current_hand = current_hand
         self._is_preflop = True
         self._game_score = 0 # az eddig jateklepesek alapjan kapott erteket tartja nyilvan
@@ -17,7 +20,7 @@ class PokerBot:
     
     # a preflop kezdokezeket kulon kell kezelnunk, mert ez csak ket lapot jelent
     # ezekhez kulon rendelunk score-okat es eleg lazan ertekeljuk,
-    # mert heads-up már egy par is igen sokat er
+    # mert heads-up mï¿½r egy par is igen sokat er
     # itt nem veszi figyelembe az ellenfelet meg, de kesobb ide kellene azt a funkciot is beepiteni
     def preFlopHandEvaluation(self):
         
@@ -56,15 +59,15 @@ class PokerBot:
         self._game_score = new_score
         
     def setIsPreFlop(self, val):
-        
+        print(val)
         self._is_preflop = val
         
-    def setCurrentHand(self, current_hand, form):
+    def setCurrentHand(self, current_hand, form=False):
             
         self._current_hand = current_hand if form else CardClassificator.format_converter(current_hand)
     
     # minden postflop lepesnel ennek az fv-nek kell lefutnia
-    def setPostFlopHelp(self, hands):
+    def setPostFlopHand(self, hands):
         
         self._current_value, self._current_hand = CardClassificator.get_best_hand(hands)
     

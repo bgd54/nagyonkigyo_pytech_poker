@@ -1,7 +1,7 @@
 import tkMessageBox
 import os
 import CardClassificator as CardCl
-from pokerbot import PokerBot
+from BotImplementation import PokerBot
 import GameTree
 from gamestatistics import Statistics
 

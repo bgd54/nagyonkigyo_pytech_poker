@@ -242,7 +242,6 @@ class MyWorker(threading.Thread):
 curr_table = [1,3, 3,12, 2,2, 2,4, 2,11]
 bot = [2,1, 2,2]
 player = [2,10, 2,7]
-
 c, p, b = who_win(player, bot, curr_table, True, True)
 print(c)
 print(p)

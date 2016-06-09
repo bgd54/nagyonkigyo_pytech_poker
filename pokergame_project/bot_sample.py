@@ -37,4 +37,3 @@ class botbeta:
     def send_to_bot_cards(self,cards):
 
         print cards
-

@@ -1,7 +1,8 @@
 import tkMessageBox
 import os
 import CardClassificator as CardCl
-import bot_sample
+from pokerbot import PokerBot
+import GameTree
 from gamestatistics import Statistics
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -11,8 +12,9 @@ path = os.path.join(BASE_DIR, "poker")+os.path.sep
 class Logic:
     def __init__(self, gui):
         self.gui = gui
-        self.bot = bot_sample.botbeta(self)  # TODO
         self.statistics = Statistics()
+        self.curr_game_tree = None
+        self.bot = PokerBot(statistics=self.statistics, logic=self)
 
         # kezdeti ertkek beallitasa
         
@@ -53,17 +55,17 @@ class Logic:
         self.end = 0
         self.throw1 = 0
 
-    def savegame3(self, buf,player100,player_money,player_bet,bot_money,bot_bet,bet):
+    def savegame3(self, buf, player100, player_money, player_bet, bot_money, bot_bet, bet):
         """ Jatek allasanak kimentese"""
         
-        file_save=open(path+"pokersave111.txt","a")
-        file_save.write(buf % (player100,player_money,player_bet,bot_money,bot_bet,bet))
+        file_save = open(path+"pokersave111.txt", "a")
+        file_save.write(buf % (player100, player_money, player_bet, bot_money, bot_bet, bet))
 
         file_save.close()
 
     def savegame2(self, info):
         """ Jatek allasanak kimentese, pl. new round"""
-        file_save=open(path+"pokersave111.txt","a")
+        file_save = open(path+"pokersave111.txt", "a")
     
         for i in range(len(info)):
             file_save.write(str(info[i])+"\n")
@@ -72,7 +74,7 @@ class Logic:
 
     def savegame(self):
         """ Jatek allasanak kimentese kesobbi visszatolteshez"""
-        file_save=open(path+"pokersave.txt","w")
+        file_save = open(path+"pokersave.txt", "w")
         file_save.write("My_first_card: "+self.gui.mycards[0]+"\n")
         file_save.write("My_second_card: "+self.gui.mycards[1]+"\n")
 
@@ -94,11 +96,11 @@ class Logic:
         file_save.write("Main5: " + self.gui.maincards[4]+"\n")
         file_save.write("Main5_state "+self.gui.card[4].cget("text")+"\n")
 
-        file_save.write("Player_money: " + self.player_money+"\n")
-        file_save.write("Bot_money: " + self.bot_money+"\n")
-        file_save.write("Player_bet: " + self.player_bet+"\n")
-        file_save.write("Bot_bet: " + self.bot_bet+"\n")
-        file_save.write("All_bet: " + self.all_bet+"\n")   
+        file_save.write("Player_money: " + str(self.player_money)+"\n")
+        file_save.write("Bot_money: " + str(self.bot_money)+"\n")
+        file_save.write("Player_bet: " + str(self.player_bet)+"\n")
+        file_save.write("Bot_bet: " + str(self.bot_bet)+"\n")
+        file_save.write("All_bet: " + str(self.all_bet)+"\n")
 
     def opengame(self):
 
@@ -160,10 +162,10 @@ class Logic:
                     line = line.rstrip("\n")
                     self.all_bet = int(line)
 
-            self.gui.gameopen1(self.gui.maincards,self.gui.mycards,self.gui.othercards,states)
+            self.gui.gameopen1(self.gui.maincards, self.gui.mycards, self.gui.othercards, states)
 
         except IOError:
-            tkMessageBox.showerror ("No file", "No saved game found")
+            tkMessageBox.showerror("No file", "No saved game found")
 
     def newgame(self):
 
@@ -171,7 +173,8 @@ class Logic:
             answer = tkMessageBox.askquestion("New Game", "Are You Sure?", icon="warning")
         elif self.gui.language == ['hungarian']:
             answer = tkMessageBox.askquestion("Uj jatek", "Biztos?", icon="warning")
-        else: answer = no
+        else:
+            answer = "no"
 
         if answer == "yes":
 
@@ -179,7 +182,8 @@ class Logic:
                 answer2 = tkMessageBox.askquestion("Save", "Save game first?", icon="warning")
             elif self.gui.language == ['hungarian']:
                 answer2 = tkMessageBox.askquestion("Mentes", "Mentsem a jelenlegi jatekot?", icon="warning")
-            else: answer = no
+            else:
+                answer2 = "no"
 
             if answer2 == "yes":
                 self.savegame()
@@ -192,17 +196,17 @@ class Logic:
 
         if options.get("type1") == "flop":
 
-            self.gui.card[0].config(image=self.gui.cardpictures2[0],text="face")
-            self.gui.card[1].config(image=self.gui.cardpictures2[1],text="face")
-            self.gui.card[2].config(image=self.gui.cardpictures2[2],text="face")
+            self.gui.card[0].config(image=self.gui.cardpictures2[0], text="face")
+            self.gui.card[1].config(image=self.gui.cardpictures2[1], text="face")
+            self.gui.card[2].config(image=self.gui.cardpictures2[2], text="face")
 
         elif options.get("type1") == "turn":
 
-            self.gui.card[3].config(image=self.gui.cardpictures2[3],text="face")
+            self.gui.card[3].config(image=self.gui.cardpictures2[3], text="face")
 
         elif options.get("type1") == "river":
 
-            self.gui.card[4].config(image=self.gui.cardpictures2[4],text="face")
+            self.gui.card[4].config(image=self.gui.cardpictures2[4], text="face")
 
         self.gui.playsound(type1="3")
 
@@ -252,11 +256,12 @@ class Logic:
         self.bot_black_bet = 0
 
         self.statistics.set_state(Statistics.PRE_FLOP)  # Statistics
- 
+        self.curr_game_tree = GameTree.PreFlopTree()  # Gametree
+        self.bot.setIsPreFlop(True)
+
         # Gui elemek atallitasa (kartyak hatoldala, gombok letiltasa?)
 
         self.gui.game1()
-        
 
         self.gui.all_bet.config(text="0")
         self.gui.mycardsbutton.config(state="disabled")
@@ -265,10 +270,9 @@ class Logic:
 
         # kisvak - nagyvak meghatarozasa az elozo ertek alapjan
 
-        kisvak1 =  self.gui.kisvak.cget("text")
-        nagyvak1 =  self.gui.nagyvak.cget("text")
+        kisvak1 = self.gui.kisvak.cget("text")
 
-        if kisvak1 =="player":
+        if kisvak1 == "player":
 
             self.gui.kisvak.config(text="bot")
             self.gui.nagyvak.config(text="player")
@@ -278,8 +282,7 @@ class Logic:
             self.gui.giveButton.config(state="normal")
             self.gui.giveButton2.config(state="disabled")
 
-            self.gui.changeText(self.gui.infolabel,self.gui.bigblind_info)
-
+            self.gui.changeText(self.gui.infolabel, self.gui.bigblind_info)
 
         else:
 
@@ -290,10 +293,13 @@ class Logic:
             self.gui.giveButton.config(state="disabled")
             self.gui.raiseButton.config(state="disabled")
             self.gui.throwButton.config(state="disabled")
-            self.bot.send_to_bot("kezdes",self.player_money,self.player_bet,self.bot_money,self.bot_bet) 
+
+            self.bot.giveBlind()
+            self.bot.setCurrentHand(self.gui.othercards[:])
+            # self.bot.send_to_bot("kezdes",self.player_money,self.player_bet,self.bot_money,self.bot_bet)
             self.gui.raiseButton.config(state="normal")
             self.gui.throwButton.config(state="normal")
-            self.gui.changeText(self.gui.infolabel,self.gui.smallblind_info)
+            self.gui.changeText(self.gui.infolabel, self.gui.smallblind_info)
 
     def update_player_tokens(self):
         
@@ -319,10 +325,9 @@ class Logic:
             self.player_levon = 0
             
         else:
-            self.player_levon = self.player_levon - self.player_black*self.black_value
+            self.player_levon -= self.player_black*self.black_value
             self.player_black_bet += self.player_black
             self.player_black = 0
-            
 
         if self.player_green >= self.player_levon/self.green_value:
             self.player_green -= self.player_levon/self.green_value
@@ -330,17 +335,16 @@ class Logic:
             self.player_levon = 0
 
         else:
-            self.player_levon = self.player_levon - self.player_green*self.green_value
-            self.player_green_bet +=self.player_green
+            self.player_levon -= self.player_green*self.green_value
+            self.player_green_bet += self.player_green
             self.player_green = 0
-            
 
         if self.player_red >= self.player_levon/self.red_value:
             self.player_red -= self.player_levon/self.red_value
             self.player_red_bet += self.player_levon/self.red_value
             self.player_levon = 0
         else:
-            self.player_levon = self.player_levon - self.player_red*self.red_value
+            self.player_levon -= self.player_red*self.red_value
             self.player_red_bet += self.player_red
             self.player_red = 0
 
@@ -349,7 +353,7 @@ class Logic:
             self.player_blue_bet += self.player_levon/self.blue_value
             self.player_levon = 0
         else:
-            self.player_levon = self.player_levon - self.player_blue*self.blue_value
+            self.player_levon -= self.player_blue*self.blue_value
             self.player_blue_bet += self.player_blue
             self.player_blue = 0
 
@@ -358,7 +362,7 @@ class Logic:
             self.player_white_bet += self.player_levon/self.white_value
             self.player_levon = 0
         else:
-            self.player_levon = self.player_levon - self.player_white*self.white_value
+            self.player_levon -= self.player_white*self.white_value
             self.player_white_bet += self.player_white
             self.player_white = 0
 
@@ -371,7 +375,7 @@ class Logic:
             self.bot_black_bet += self.bot_levon/self.black_value
             self.bot_levon = 0
         else:
-            self.bot_levon = self.bot_levon - self.bot_black*self.black_value
+            self.bot_levon -= self.bot_black*self.black_value
             self.bot_black_bet += self.bot_black
             self.bot_black = 0
 
@@ -380,7 +384,7 @@ class Logic:
             self.bot_green_bet += self.bot_levon/self.green_value
             self.bot_levon = 0
         else:
-            self.bot_levon = self.bot_levon - self.bot_green*self.green_value
+            self.bot_levon -= self.bot_green*self.green_value
             self.bot_green_bet += self.bot_green
             self.bot_green = 0
 
@@ -389,7 +393,7 @@ class Logic:
             self.bot_red_bet += self.bot_levon/self.red_value
             self.bot_levon = 0
         else:
-            self.bot_levon = self.bot_levon - self.bot_red*self.red_value
+            self.bot_levon -= self.bot_red*self.red_value
             self.bot_red_bet += self.bot_red
             self.bot_red = 0
 
@@ -398,7 +402,7 @@ class Logic:
             self.bot_blue_bet += self.bot_levon/self.blue_value
             self.bot_levon = 0
         else:
-            self.bot_levon = self.bot_levon - self.bot_blue*self.blue_value
+            self.bot_levon -= self.bot_blue*self.blue_value
             self.bot_blue_bet += self.bot_blue
             self.bot_blue = 0
 
@@ -407,7 +411,7 @@ class Logic:
             self.bot_white_bet += self.bot_levon/self.white_value
             self.bot_levon = 0
         else:
-            self.bot_levon = self.bot_levon - self.bot_white*self.white_value
+            self.bot_levon -= self.bot_white*self.white_value
             self.bot_white_bet += self.bot_white
             self.bot_white = 0
 
@@ -428,7 +432,6 @@ class Logic:
         self.bot_white += self.bot_white_bet+self.player_white_bet
 
     def both_get_tokens(self):
-   
 
         self.bot_black += self.bot_black_bet
         self.bot_green += self.bot_green_bet
@@ -449,15 +452,15 @@ class Logic:
         # az osszes lapot felforditjuk, ami meg nincs felforditva (a feltetelt akar ki is lehetne hagyni)
 
         if self.gui.card[0].cget("text") == "back":
-            self.gui.card[0].config(image=self.gui.cardpictures2[0],text="face")
+            self.gui.card[0].config(image=self.gui.cardpictures2[0], text="face")
         if self.gui.card[1].cget("text") == "back":
-            self.gui.card[1].config(image=self.gui.cardpictures2[1],text="face")
+            self.gui.card[1].config(image=self.gui.cardpictures2[1], text="face")
         if self.gui.card[2].cget("text") == "back":
-            self.gui.card[2].config(image=self.gui.cardpictures2[2],text="face")
+            self.gui.card[2].config(image=self.gui.cardpictures2[2], text="face")
         if self.gui.card[3].cget("text") == "back":
-            self.gui.card[3].config(image=self.gui.cardpictures2[3],text="face")
+            self.gui.card[3].config(image=self.gui.cardpictures2[3], text="face")
         if self.gui.card[4].cget("text") == "back":
-            self.gui.card[4].config(image=self.gui.cardpictures2[4],text="face")
+            self.gui.card[4].config(image=self.gui.cardpictures2[4], text="face")
 
         self.gui.card[0].config(text="ready")
         self.gui.card[1].config(text="ready")
@@ -481,8 +484,6 @@ class Logic:
 
         # megnezzuk, ki nyert
 
-        bet = int(self.gui.all_bet.cget("text"))
-
         if case == "throw_player":
 
                 self.throw1 = 1
@@ -493,7 +494,7 @@ class Logic:
                 self.update_bot_tokens()
 
                 self.gui.label_sum_bot.config(text=str(self.bot_money))
-                self.gui.changeText(self.gui.infolabel,self.gui.botwin_info)
+                self.gui.changeText(self.gui.infolabel, self.gui.botwin_info)
 
                 self.savegame2(["Bot wins"])
 
@@ -507,7 +508,7 @@ class Logic:
                 self.update_player_tokens()
                 
                 self.gui.label_sum.config(text=str(self.player_money))
-                self.gui.changeText(self.gui.infolabel,self.gui.youwin_info)
+                self.gui.changeText(self.gui.infolabel, self.gui.youwin_info)
 
                 self.savegame2(["Player wins"])
 
@@ -523,13 +524,10 @@ class Logic:
         self.bot_bet = 0
         self.all_bet = 0
 
-        self.gui.changeText2([self.gui.all_bet_playerlabel,self.gui.all_bet_botlabel,self.gui.all_bet],"0")
+        self.gui.changeText2([self.gui.all_bet_playerlabel, self.gui.all_bet_botlabel, self.gui.all_bet], "0")
 
         self.update_player_tokens()
         self.update_bot_tokens()
-
-        
-
 
         # uj kor kezdese
 
@@ -549,13 +547,13 @@ class Logic:
 
         if who == "player":
 
-            if self.player_money>= x:
+            if self.player_money >= x:
 
                 self.player_money -= x
                 self.player_bet += x
                 self.player_levon = x
 
-            elif self.player_money<x and self.player_money>0:
+            elif 0 < self.player_money < x:  # and self.player_money > 0:
                 self.player_money = 0
                 self.player_bet += self.player_money
                 self.player_levon = self.player_money
@@ -564,16 +562,15 @@ class Logic:
 
             self.update_player_tokens()
 
-
         elif who == "bot":
 
-            if self.bot_money>= x:
+            if self.bot_money >= x:
 
                 self.bot_money -= x
                 self.bot_bet += x
                 self.bot_levon = x
 
-            elif self.bot_money<x and self.bot_money>0:
+            elif 0 < self.bot_money < x:  # and self.bot_money > 0:
                 self.bot_money = 0
                 self.bot_bet += self.bot_money
                 self.bot_levon = self.bot_money
@@ -582,36 +579,27 @@ class Logic:
 
             self.update_bot_tokens()
 
-                        
         self.all_bet = self.bot_bet + self.player_bet
 
     def moneyinf(self, s, who):
 
         self.decision += 1
 
-        kisvak = self.gui.kisvak.cget("text")
-        nagyvak = self.gui.nagyvak.cget("text")
-
-        player_levon = 0
-        bot_levon = 0
-
         player100 = "player_give:\t100"
         player200 = "player_give:\t200"
-        player500 = "player_raise:\t500"
         bot100 = "bot_give:\t100"
         bot200 = "bot_give:\t200"
-        bot500 = "bot_raise:\t500"
 
         self.savegame2(["next"])
 
         buf = "%s\nplayer_has:\t%i\nplayer_bet:\t%i\nbot_has:\t%i\nbot_bet:\t%i\nall_bet:\t%i\n"
 
-
         # feladas
         if s == 1:
+            self.curr_game_tree.makeStep(0)  # Gametree
             # Statisztikakhoz atadni az esemenyt.
+            # Statistics
             self.statistics.perform_action(Statistics.FOLD, Statistics.BOT if who == "bot" else Statistics.PLAYER)
-
             self.round_over("throw_"+who)
             self.savegame2("throw_"+who)
         # tartas/megadas
@@ -620,76 +608,99 @@ class Logic:
                 # ha a kisvak tetet kell betenni
                 if self.player_bet == 0 and self.bot_bet == 200:
 
-                    self.change_values("player",100,self.all_bet)
-                    self.savegame3(buf,player100,self.player_money,self.player_bet,self.bot_money,self.bot_bet,self.all_bet)
+                    self.change_values("player", 100, self.all_bet)
+                    self.savegame3(buf, player100, self.player_money, self.player_bet, self.bot_money,
+                                   self.bot_bet, self.all_bet)
 
                     self.gui.mycardsbutton.config(state="normal")
-                    self.gui.changeText(self.gui.infolabel,self.gui.look_info)
+                    self.gui.changeText(self.gui.infolabel, self.gui.look_info)
                 else:
                     # a jatekos gombjainak tiltasa
-                    self.gui.changeState([self.gui.giveButton,self.gui.raiseButton,self.gui.throwButton],"disabled")
+                    self.gui.changeState([self.gui.giveButton, self.gui.raiseButton, self.gui.throwButton], "disabled")
 
                     # a bot gombjainak tiltasat feloldjuk (ez majd nem kell)
-                    self.gui.changeState([self.gui.giveButton2,self.gui.raiseButton2,self.gui.throwButton2],"normal")
-
-                    if not (self.player_bet == 0 and self.bot_bet == 0):  # Statistics
-                        self.statistics.perform_action(
-                            Statistics.CHECK if self.player_bet == self.bot_bet else Statistics.GIVE,
-                            Statistics.BOT if who == "bot" else Statistics.PLAYER)
+                    self.gui.changeState([self.gui.giveButton2, self.gui.raiseButton2, self.gui.throwButton2], "normal")
 
                     # ha a nagyvakot kell betenni
                     if self.player_bet == 0 and self.bot_bet == 0:
                         
                         self.gui.mycardsbutton.config(state="normal")
 
-                        self.change_values("player",200,self.all_bet)
-                        self.savegame3(buf,player200,self.player_money,self.player_bet,self.bot_money,self.bot_bet,self.all_bet)
+                        self.change_values("player", 200, self.all_bet)
+                        self.savegame3(buf, player200, self.player_money, self.player_bet, self.bot_money,
+                                       self.bot_bet, self.all_bet)
                     elif self.player_bet == 100 and self.bot_bet == 200:
 
-                        self.change_values("player",100,self.all_bet)
-                        self.savegame3(buf,player100,self.player_money,self.player_bet,self.bot_money,self.bot_bet,self.all_bet)
+                        self.change_values("player", 100, self.all_bet)
+                        self.savegame3(buf, player100, self.player_money, self.player_bet, self.bot_money, self.bot_bet,
+                                       self.all_bet)
                     elif self.player_bet <= self.bot_bet:
 
-                        self.change_values("player",self.bot_bet-self.player_bet,self.all_bet)
-                        self.savegame3(buf,"player_give:"+str(self.bot_bet-self.player_bet),self.player_money,self.player_bet,self.bot_money,self.bot_bet,self.all_bet)
+                        self.change_values("player", self.bot_bet-self.player_bet, self.all_bet)
+                        self.savegame3(buf, "player_give:"+str(self.bot_bet-self.player_bet), self.player_money,
+                                       self.player_bet, self.bot_money, self.bot_bet, self.all_bet)
 
-                    if self.end == 0:
-                        self.bot.send_to_bot("adas",self.player_money,self.player_bet,self.bot_money,self.bot_bet) ## TODO
+                    if not (self.player_bet == 0 and self.bot_bet == 0):  # Statistics
+                        self.curr_game_tree.makeStep(1)  # Gametree Give
+                        self.statistics.perform_action(
+                            Statistics.CHECK if self.player_bet == self.bot_bet else Statistics.GIVE,
+                            Statistics.BOT if who == "bot" else Statistics.PLAYER)
+                        decision = self.bot.makeDecision()
+                        if decision == 0:
+                            self.throw(who="bot")
+                        elif decision == 1:
+                            self.give(who="bot")
+                        else:
+                            self.raise1(who="bot")
+
+                    # if self.end == 0:
+                    #    self.bot.send_to_bot("adas",self.player_money,self.player_bet,self.bot_money,self.bot_bet)
                 self.gui.all_bet_playerlabel.config(text=self.player_bet)
                 self.continue1()
 
             elif who == "bot":
 
                 # a jatekos gombjainak tiltasat feloldjuk
-                self.gui.changeState([self.gui.giveButton,self.gui.raiseButton,self.gui.throwButton],"normal")
+                self.gui.changeState([self.gui.giveButton, self.gui.raiseButton, self.gui.throwButton], "normal")
 
                 # a bot gombjait tiltjuk (ez majd nem kell)
-                self.gui.changeState([self.gui.giveButton2,self.gui.raiseButton2,self.gui.throwButton2],"disabled")
+                self.gui.changeState([self.gui.giveButton2, self.gui.raiseButton2, self.gui.throwButton2], "disabled")
 
                 if self.bot_bet == 0 and self.player_bet == 200:
 
-                    self.change_values("bot",100,self.all_bet)
-                    self.savegame3(buf,bot100,self.player_money,self.player_bet,self.bot_money,self.bot_bet,self.all_bet)
-                    self.gui.changeState([self.gui.giveButton2,self.gui.raiseButton2,self.gui.throwButton2],"normal")
-                    self.gui.changeState([self.gui.giveButton,self.gui.raiseButton,self.gui.throwButton],"disabled")
-                    self.bot.send_to_bot("bot_kisvak",self.player_money,self.player_bet,self.bot_money,self.bot_bet)
-                    self.bot.send_to_bot_cards(self.gui.othercards[:])
+                    self.change_values("bot", 100, self.all_bet)
+                    self.savegame3(buf, bot100, self.player_money, self.player_bet, self.bot_money, self.bot_bet,
+                                   self.all_bet)
+                    self.gui.changeState([self.gui.giveButton2, self.gui.raiseButton2, self.gui.throwButton2], "normal")
+                    self.gui.changeState([self.gui.giveButton, self.gui.raiseButton, self.gui.throwButton], "disabled")
+                    self.bot.setCurrentHand(self.gui.othercards[:])
+                    decision = self.bot.makeDecision()
+                    if decision == 0:
+                        self.throw(who="bot")
+                    elif decision == 1:
+                        self.give(who="bot")
+                    else:
+                        self.raise1(who="bot")
+                    # self.bot.send_to_bot_cards(self.gui.othercards[:])
 
                 elif self.bot_bet == 0 and self.player_bet == 0:
 
-                    self.change_values("bot",200,self.all_bet)
-                    self.savegame3(buf,bot200,self.player_money,self.player_bet,self.bot_money,self.bot_bet,self.all_bet)
+                    self.change_values("bot", 200, self.all_bet)
+                    self.savegame3(buf, bot200, self.player_money, self.player_bet, self.bot_money, self.bot_bet,
+                                   self.all_bet)
 
                 elif self.bot_bet == 100 and self.player_bet == 200:
 
-                    self.change_values("bot",100,self.all_bet)
-                    self.savegame3(buf,bot100,self.player_money,self.player_bet,self.bot_money,self.bot_bet,self.all_bet)
+                    self.change_values("bot", 100, self.all_bet)
+                    self.savegame3(buf, bot100, self.player_money, self.player_bet, self.bot_money, self.bot_bet,
+                                   self.all_bet)
 
                 elif self.bot_bet <= self.player_bet:
 
-                    self.change_values("bot",self.player_bet-self.bot_bet,self.all_bet)
+                    self.change_values("bot", self.player_bet-self.bot_bet, self.all_bet)
                    
-                    self.savegame3(buf,"bot_give:"+str(self.player_bet-self.bot_bet),self.player_money,self.player_bet,self.bot_money,self.bot_bet,self.all_bet)
+                    self.savegame3(buf, "bot_give:"+str(self.player_bet-self.bot_bet), self.player_money,
+                                   self.player_bet, self.bot_money, self.bot_bet, self.all_bet)
 
                 self.continue1()
                 self.gui.all_bet_botlabel.config(text=self.bot_bet)
@@ -697,13 +708,14 @@ class Logic:
         # emelunk
         elif s == 3:
 
-            emel = 500
             self.statistics.perform_action(Statistics.RAISE, Statistics.BOT if who == "bot" else Statistics.PLAYER)
+            self.curr_game_tree.makeStep(2)  # Gametree RAISE
 
             if who == "player":
 
-                self.change_values("player",self.bot_bet-self.player_bet+500,self.all_bet)
-                self.savegame3(buf,"player_give:"+str(self.bot_bet-self.player_bet+500),self.player_money,self.player_bet,self.bot_money,self.bot_bet,self.all_bet)
+                self.change_values("player", self.bot_bet-self.player_bet+500, self.all_bet)
+                self.savegame3(buf, "player_give:"+str(self.bot_bet-self.player_bet+500), self.player_money,
+                               self.player_bet, self.bot_money, self.bot_bet, self.all_bet)
                 self.gui.all_bet_playerlabel.config(text=self.player_bet)
 
                 # letiltjuk a gombokat, amig a bot kovetkezik
@@ -718,12 +730,19 @@ class Logic:
                 self.gui.raiseButton2.config(state="normal")
                 self.gui.throwButton2.config(state="normal")
 
-                self.bot.send_to_bot("emeles",self.player_money,self.player_bet,self.bot_money,self.bot_bet)
+                decision = self.bot.makeDecision()
+                if decision == 0:
+                    self.throw(who="bot")
+                elif decision == 1:
+                    self.give(who="bot")
+                else:
+                    self.raise1(who="bot")
 
             elif who == "bot":
 
-                self.change_values("bot",self.player_bet-self.bot_bet+500,self.all_bet)
-                self.savegame3(buf,"bot_give:"+str(self.player_bet-self.bot_bet+500),self.player_money,self.player_bet,self.bot_money,self.bot_bet,self.all_bet)
+                self.change_values("bot", self.player_bet-self.bot_bet+500, self.all_bet)
+                self.savegame3(buf, "bot_give:"+str(self.player_bet-self.bot_bet+500), self.player_money,
+                               self.player_bet, self.bot_money, self.bot_bet, self.all_bet)
                 self.gui.all_bet_botlabel.config(text=self.bot_bet)
 
                 # letiltjuk a gombokat, amig a jatekos kovetkezik (ez majd nem kell)
@@ -762,15 +781,19 @@ class Logic:
 
         if self.player_bet == self.bot_bet and self.decision >= 1:
 
+            self.curr_game_tree = GameTree.PostFlopTree(self.curr_game_tree.getScore())  # Gametree
+            self.bot.setIsPreFlop(False)
             # megnezzuk, hol tart a jatek
             # ha a 3. lap nincs felforditva, akkor a flop kovetkezik
-
+            table = self.gui.othercards[:]
             if self.gui.card[2].cget("text") == "back":
                 self.statistics.set_state(Statistics.FLOP)  # Statistics
                 self.showmaincards(type1="flop")
 
                 self.savegame2([self.gui.maincards[0:3]])
-                self.bot.send_to_bot_cards(self.gui.maincards[0:3])
+                table += self.gui.maincards[0:3]
+                self.bot.setPostFlopHand(table)
+                # self.bot.send_to_bot_cards(self.gui.maincards[0:3])
                 # send_to_bot(self.gui.maincards[0:3])
 
             # ha a 4. lap nincs felforditva (1-3 igen), akkor a turn kovetkezik
@@ -779,7 +802,9 @@ class Logic:
                 self.statistics.set_state(Statistics.TURN)  # Statistics
                 self.showmaincards(type1="turn")
 
-                self.bot.send_to_bot_cards(self.gui.maincards[3:4])
+                table += self.gui.maincards[0:4]
+                self.bot.setPostFlopHand(table)
+                # self.bot.send_to_bot_cards(self.gui.maincards[3:4])
                 # send_to_bot(self.gui.maincards[3:4])
 
             # ha az 5. lap nincs felforditva (1-4 igen), akkor a river kovetkezik
@@ -787,7 +812,9 @@ class Logic:
                 self.statistics.set_state(Statistics.RIVER)  # Statistics
                 self.showmaincards(type1="river")
 
-                self.bot.send_to_bot_cards(self.gui.maincards[4:])
+                table += self.gui.maincards[:]
+                self.bot.setPostFlopHand(table)
+                # self.bot.send_to_bot_cards(self.gui.maincards[4:])
                 # send_to_bot(self.gui.maincards[4:])
                 self.end = 1
 
@@ -800,7 +827,6 @@ class Logic:
                 
                     self.round_over("evaluate")
                     self.savegame2(["evaluate"])
-
             self.decision = 0
 
     def raise1(self, who):
@@ -822,7 +848,6 @@ class Logic:
         self.moneyinf(1, options.get("who"))
 
         self.gui.playsound(type1="3")
-        self.round_over(options.get("who"))
 
     # kiertekeles
     def evaluate(self, table):
@@ -868,5 +893,3 @@ class Logic:
             self.gui.label_sum.config(text=str(self.player_money))
             self.gui.changeText(self.gui.infolabel, self.gui.youwin_info)
             self.savegame2(["Player wins"])
-
-        return verdict

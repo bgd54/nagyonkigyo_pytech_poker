@@ -1,0 +1,3 @@
+All games: 2
+Win: 2
+Lost: 0

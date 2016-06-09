@@ -387,3 +387,145 @@ player_bet:	200
 bot_has:	9800
 bot_bet:	200
 all_bet:	400
+New round
+next
+bot_give:	200
+player_has:	10000
+player_bet:	0
+bot_has:	9800
+bot_bet:	200
+all_bet:	200
+next
+player_give:	100
+player_has:	9900
+player_bet:	100
+bot_has:	9800
+bot_bet:	200
+all_bet:	300
+next
+next
+player_give:	100
+player_has:	9800
+player_bet:	200
+bot_has:	9800
+bot_bet:	200
+all_bet:	400
+['C5', 'A7', 'A10']
+next
+bot_give:0
+player_has:	9900
+player_bet:	200
+bot_has:	9800
+bot_bet:	200
+all_bet:	400
+next
+['A2']
+player_give:0
+player_has:	9800
+player_bet:	200
+bot_has:	9800
+bot_bet:	200
+all_bet:	400
+next
+bot_give:0
+player_has:	9800
+player_bet:	200
+bot_has:	9800
+bot_bet:	200
+all_bet:	400
+next
+['A13']
+player_give:0
+player_has:	9800
+player_bet:	200
+bot_has:	9800
+bot_bet:	200
+all_bet:	400
+next
+bot_give:0
+player_has:	9800
+player_bet:	200
+bot_has:	9800
+bot_bet:	200
+all_bet:	400
+next
+Bot wins
+evaluate
+player_give:0
+player_has:	9800
+player_bet:	200
+bot_has:	9800
+bot_bet:	200
+all_bet:	400
+next
+bot_give:0
+player_has:	9800
+player_bet:	200
+bot_has:	10200
+bot_bet:	200
+all_bet:	400
+New round
+next
+player_give:	200
+player_has:	9600
+player_bet:	200
+bot_has:	10200
+bot_bet:	0
+all_bet:	200
+next
+bot_give:	100
+player_has:	9800
+player_bet:	200
+bot_has:	10100
+bot_bet:	100
+all_bet:	300
+next
+bot_give:	100
+player_has:	9600
+player_bet:	200
+bot_has:	10100
+bot_bet:	200
+all_bet:	400
+['D7', 'C4', 'D12']
+New round
+next
+bot_give:	200
+player_has:	10000
+player_bet:	0
+bot_has:	9800
+bot_bet:	200
+all_bet:	200
+next
+player_give:	100
+player_has:	9900
+player_bet:	100
+bot_has:	9800
+bot_bet:	200
+all_bet:	300
+next
+player_give:	100
+player_has:	9800
+player_bet:	200
+bot_has:	9800
+bot_bet:	200
+all_bet:	400
+next
+Player wins
+t
+h
+r
+o
+w
+_
+b
+o
+t
+New round
+New round
+next
+bot_give:	200
+player_has:	10000
+player_bet:	0
+bot_has:	9800
+bot_bet:	200
+all_bet:	200

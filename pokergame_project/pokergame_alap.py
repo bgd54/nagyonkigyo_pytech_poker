@@ -1,6 +1,8 @@
 import tkMessageBox
 import os
 import CardClassificator as CardCl
+from pokerbot import PokerBot
+import GameTree
 import bot_sample
 from gamestatistics import Statistics
 
@@ -11,8 +13,9 @@ path = os.path.join(BASE_DIR, "poker")+os.path.sep
 class Logic:
     def __init__(self, gui):
         self.gui = gui
-        self.bot = bot_sample.botbeta(self)  # TODO
         self.statistics = Statistics()
+        self.curr_game_tree = None
+        self.bot = PokerBot(statistics=self.statistics,logic=self)
 
         # kezdeti ertkek beallitasa
         
@@ -171,7 +174,8 @@ class Logic:
             answer = tkMessageBox.askquestion("New Game", "Are You Sure?", icon="warning")
         elif self.gui.language == ['hungarian']:
             answer = tkMessageBox.askquestion("Uj jatek", "Biztos?", icon="warning")
-        else: answer = no
+        else:
+            answer2 = "no"
 
         if answer == "yes":
 
@@ -253,11 +257,11 @@ class Logic:
         self.bot_black_bet = 0
 
         self.statistics.set_state(Statistics.PRE_FLOP)  # Statistics
- 
+        self.curr_game_tree = GameTree.PreFlopTree()  # Gametree
+
         # Gui elemek atallitasa (kartyak hatoldala, gombok letiltasa?)
 
         self.gui.game1()
-        
 
         self.gui.all_bet.config(text="0")
         self.gui.mycardsbutton.config(state="disabled")
@@ -291,7 +295,10 @@ class Logic:
             self.gui.giveButton.config(state="disabled")
             self.gui.raiseButton.config(state="disabled")
             self.gui.throwButton.config(state="disabled")
-            self.bot.send_to_bot("kezdes",self.player_money,self.player_bet,self.bot_money,self.bot_bet) 
+
+            self.bot.setIsPreFlop(True)
+            self.bot.giveBlind()
+            # self.bot.send_to_bot("kezdes",self.player_money,self.player_bet,self.bot_money,self.bot_bet)
             self.gui.raiseButton.config(state="normal")
             self.gui.throwButton.config(state="normal")
             self.gui.changeText(self.gui.infolabel,self.gui.smallblind_info)
@@ -610,9 +617,9 @@ class Logic:
 
         # feladas
         if s == 1:
+            self.curr_game_tree.makeStep(0)  # Gametree
             # Statisztikakhoz atadni az esemenyt.
-            self.statistics.perform_action(Statistics.FOLD, Statistics.BOT if who == "bot" else Statistics.PLAYER)
-
+            self.statistics.perform_action(Statistics.FOLD, Statistics.BOT if who == "bot" else Statistics.PLAYER)  # Statistics
             self.round_over("throw_"+who)
             self.savegame2("throw_"+who)
         # tartas/megadas
@@ -633,11 +640,6 @@ class Logic:
                     # a bot gombjainak tiltasat feloldjuk (ez majd nem kell)
                     self.gui.changeState([self.gui.giveButton2,self.gui.raiseButton2,self.gui.throwButton2],"normal")
 
-                    if not (self.player_bet == 0 and self.bot_bet == 0):  # Statistics
-                        self.statistics.perform_action(
-                            Statistics.CHECK if self.player_bet == self.bot_bet else Statistics.GIVE,
-                            Statistics.BOT if who == "bot" else Statistics.PLAYER)
-
                     # ha a nagyvakot kell betenni
                     if self.player_bet == 0 and self.bot_bet == 0:
                         
@@ -654,8 +656,21 @@ class Logic:
                         self.change_values("player",self.bot_bet-self.player_bet,self.all_bet)
                         self.savegame3(buf,"player_give:"+str(self.bot_bet-self.player_bet),self.player_money,self.player_bet,self.bot_money,self.bot_bet,self.all_bet)
 
-                    if self.end == 0:
-                        self.bot.send_to_bot("adas",self.player_money,self.player_bet,self.bot_money,self.bot_bet) ## TODO
+                    if not (self.player_bet == 0 and self.bot_bet == 0):  # Statistics
+                        self.curr_game_tree.makeStep(1) # Gametree Give
+                        self.statistics.perform_action(
+                            Statistics.CHECK if self.player_bet == self.bot_bet else Statistics.GIVE,
+                            Statistics.BOT if who == "bot" else Statistics.PLAYER)
+                        decision = self.bot.makeDecision()
+                        if decision == 0:
+                            self.throw(who="bot")
+                        elif decision == 1:
+                            self.give(who="bot")
+                        else:
+                            self.raise1(who="bot")
+
+                    # if self.end == 0:
+                    #    self.bot.send_to_bot("adas",self.player_money,self.player_bet,self.bot_money,self.bot_bet) ## TODO
                 self.gui.all_bet_playerlabel.config(text=self.player_bet)
                 self.continue1()
 
@@ -673,8 +688,15 @@ class Logic:
                     self.savegame3(buf,bot100,self.player_money,self.player_bet,self.bot_money,self.bot_bet,self.all_bet)
                     self.gui.changeState([self.gui.giveButton2,self.gui.raiseButton2,self.gui.throwButton2],"normal")
                     self.gui.changeState([self.gui.giveButton,self.gui.raiseButton,self.gui.throwButton],"disabled")
-                    self.bot.send_to_bot("bot_kisvak",self.player_money,self.player_bet,self.bot_money,self.bot_bet)
-                    self.bot.send_to_bot_cards(self.gui.othercards[:])
+                    self.bot.setCurrentHand(self.gui.othercards[:])
+                    decision = self.bot.makeDecision()
+                    if decision == 0:
+                        self.throw(who="bot")
+                    elif decision == 1:
+                        self.give(who="bot")
+                    else:
+                        self.raise1(who="bot")
+                    # self.bot.send_to_bot_cards(self.gui.othercards[:])
 
                 elif self.bot_bet == 0 and self.player_bet == 0:
 
@@ -700,6 +722,7 @@ class Logic:
 
             emel = 500
             self.statistics.perform_action(Statistics.RAISE, Statistics.BOT if who == "bot" else Statistics.PLAYER)
+            self.curr_game_tree.makeStep(2)  # Gametree RAISE
 
             if who == "player":
 
@@ -719,7 +742,13 @@ class Logic:
                 self.gui.raiseButton2.config(state="normal")
                 self.gui.throwButton2.config(state="normal")
 
-                self.bot.send_to_bot("emeles",self.player_money,self.player_bet,self.bot_money,self.bot_bet)
+                decision = self.bot.makeDecision()
+                if decision == 0:
+                    self.throw(who="bot")
+                elif decision == 1:
+                    self.give(who="bot")
+                else:
+                    self.raise1(who="bot")
 
             elif who == "bot":
 
@@ -763,15 +792,19 @@ class Logic:
 
         if self.player_bet == self.bot_bet and self.decision >= 1:
 
+            self.curr_game_tree = GameTree.PostFlopTree(self.curr_game_tree.getScore())  # Gametree
+            self.bot.setIsPreFlop(False)
             # megnezzuk, hol tart a jatek
             # ha a 3. lap nincs felforditva, akkor a flop kovetkezik
-
+            table = self.gui.othercards[:]
             if self.gui.card[2].cget("text") == "back":
                 self.statistics.set_state(Statistics.FLOP)  # Statistics
                 self.showmaincards(type1="flop")
 
                 self.savegame2([self.gui.maincards[0:3]])
-                self.bot.send_to_bot_cards(self.gui.maincards[0:3])
+                table += self.gui.maincards[0:3]
+                self.bot.setPostFlopHand(table)
+                # self.bot.send_to_bot_cards(self.gui.maincards[0:3])
                 # send_to_bot(self.gui.maincards[0:3])
 
             # ha a 4. lap nincs felforditva (1-3 igen), akkor a turn kovetkezik
@@ -780,7 +813,9 @@ class Logic:
                 self.statistics.set_state(Statistics.TURN)  # Statistics
                 self.showmaincards(type1="turn")
 
-                self.bot.send_to_bot_cards(self.gui.maincards[3:4])
+                table += self.gui.maincards[0:4]
+                self.bot.setPostFlopHand(table)
+                # self.bot.send_to_bot_cards(self.gui.maincards[3:4])
                 # send_to_bot(self.gui.maincards[3:4])
 
             # ha az 5. lap nincs felforditva (1-4 igen), akkor a river kovetkezik
@@ -788,7 +823,9 @@ class Logic:
                 self.statistics.set_state(Statistics.RIVER)  # Statistics
                 self.showmaincards(type1="river")
 
-                self.bot.send_to_bot_cards(self.gui.maincards[4:])
+                table += self.gui.maincards[:]
+                self.bot.setPostFlopHand(table)
+                # self.bot.send_to_bot_cards(self.gui.maincards[4:])
                 # send_to_bot(self.gui.maincards[4:])
                 self.end = 1
 
@@ -801,7 +838,6 @@ class Logic:
                 
                     self.round_over("evaluate")
                     self.savegame2(["evaluate"])
-
             self.decision = 0
 
     def raise1(self, who):

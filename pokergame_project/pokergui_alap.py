@@ -11,9 +11,7 @@ if sys.version_info[0] < 3:
 else:
     import tkinter as tk
 
-import proba_plot
-
-
+# import proba_plot
 
 
 class PokerGui:

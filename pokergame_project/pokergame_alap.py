@@ -16,6 +16,25 @@ class Logic:
         self.curr_game_tree = None
         self.bot = PokerBot(statistics=self.statistics, logic=self)
 
+        # zsetonok ertekei
+
+        self.black_value = 100
+        self.green_value = 25
+        self.red_value = 10
+        self.blue_value = 5
+        self.white_value = 1
+
+        self.create_new_game()
+        self.saved_games_directory = os.path.join(self.gui.current_user_path,"Saved_games")+os.path.sep
+
+    def create_filename(self):
+        import datetime
+        time = datetime.datetime.strftime(datetime.datetime.now(), '%Y_%m_%d_%H_%M_%S')
+        filename = time+"_game"
+        return filename
+        
+    def create_new_game(self):
+
         # kezdeti ertkek beallitasa
         
         self.player_money = 10000
@@ -23,6 +42,9 @@ class Logic:
         self.bot_bet = 0
         self.player_bet = 0
         self.all_bet = 0
+        #print self.gui.mode
+        self.current_game_file = self.create_filename()
+        print self.current_game_file
 
         # kezdeti zsetonmennyiseg beolvasasa szinenkent
 
@@ -41,40 +63,34 @@ class Logic:
         self.player_black = int(self.gui.zseton.black.cget("text"))
         self.bot_black = int(self.gui.zseton2.black.cget("text"))
 
-        # zsetonok ertekei
-
-        self.black_value = 100
-        self.green_value = 25
-        self.red_value = 10
-        self.blue_value = 5
-        self.white_value = 1
-
         # jatekmenet kovetesehez szukseges valtozok
         
         self.decision = 0
         self.end = 0
         self.throw1 = 0
+        
 
-    def savegame3(self, buf, player100, player_money, player_bet, bot_money, bot_bet, bet):
+    def savegame3(self, buf,player100,player_money,player_bet,bot_money,bot_bet,bet):
         """ Jatek allasanak kimentese"""
         
-        file_save = open(path+"pokersave111.txt", "a")
-        file_save.write(buf % (player100, player_money, player_bet, bot_money, bot_bet, bet))
+        file_save=open(self.saved_games_directory+self.current_game_file+".txt","a")
+        file_save.write(buf % (player100,player_money,player_bet,bot_money,bot_bet,bet))
 
         file_save.close()
 
     def savegame2(self, info):
         """ Jatek allasanak kimentese, pl. new round"""
-        file_save = open(path+"pokersave111.txt", "a")
+        file_save=open(self.saved_games_directory+self.current_game_file+".txt","a")
     
         for i in range(len(info)):
             file_save.write(str(info[i])+"\n")
 
         file_save.close()
 
+
     def savegame(self):
         """ Jatek allasanak kimentese kesobbi visszatolteshez"""
-        file_save = open(path+"pokersave.txt", "w")
+        file_save=open(self.saved_games_directory+self.current_game_file+".txt","w")
         file_save.write("My_first_card: "+self.gui.mycards[0]+"\n")
         file_save.write("My_second_card: "+self.gui.mycards[1]+"\n")
 
@@ -96,11 +112,11 @@ class Logic:
         file_save.write("Main5: " + self.gui.maincards[4]+"\n")
         file_save.write("Main5_state "+self.gui.card[4].cget("text")+"\n")
 
-        file_save.write("Player_money: " + str(self.player_money)+"\n")
-        file_save.write("Bot_money: " + str(self.bot_money)+"\n")
-        file_save.write("Player_bet: " + str(self.player_bet)+"\n")
-        file_save.write("Bot_bet: " + str(self.bot_bet)+"\n")
-        file_save.write("All_bet: " + str(self.all_bet)+"\n")
+        file_save.write("Actual player_money: " + str(self.player_money)+"\n")
+        file_save.write("Actual bot_money: " + str(self.bot_money)+"\n")
+        file_save.write("Actual player_bet: " + str(self.player_bet)+"\n")
+        file_save.write("Actual bot_bet: " + str(self.bot_bet)+"\n")
+        file_save.write("Actual all_bet: " + str(self.all_bet)+"\n")   
 
     def opengame(self):
 
@@ -113,59 +129,78 @@ class Logic:
 
         try:
 
-            file_open = open(path+"pokersave.txt", "r")
-            for line in file_open.readlines():
+            myfiletypes = [(('Txt files', '*.txt'),('All files', '*'))]
+            
+            f3 = tkFileDialog.askopenfilename(filetypes=myfiletypes,initialdir=self.saved_games_directory)
+            print f3
+           
 
-                if "My" in line:
-                    line = line.rstrip("\n")
-                    card = line.split(" ")[1]
-                    self.gui.mycards.append(card)
-
-                elif "Others" in line:
-                    line = line.rstrip("\n")
-                    card = line.split(" ")[1]
-                    self.gui.othercards.append(card)
-
-                elif "Main" in line and "state" not in line:
-                    line = line.rstrip("\n")
-                    card = line.split(" ")[1]
-                    self.gui.maincards.append(card)
-
-                elif "state" in line:
-
-                    line = line.rstrip("\n")
-                    state = line.split(" ")[1]
-                    states.append(state)
-
-                elif "Player_money" in line:
-
-                    line = line.rstrip("\n")
-                    self.player_money = int(line)
-
-                elif "Bot_money" in line:
-
-                    line = line.rstrip("\n")
-                    self.bot_money = int(line)
+            #if f3 !=""
+            if self.gui.player.get() in f3 and "_game" in f3:
                     
-                elif "Player_bet" in line:
+                file_open = open(f3,"r")
+                for line in file_open.readlines():
 
-                    line = line.rstrip("\n")
-                    self.player_bet = int(line)
-                    
-                elif "Bot_bet" in line:
+                    if "My" in line:
+                        line = line.rstrip("\n")
+                        card = line.split(" ")[1]
+                        self.gui.mycards.append(card)
 
-                    line = line.rstrip("\n")
-                    self.bot_bet = int(line)
+                    elif "Others" in line:
+                        line = line.rstrip("\n")
+                        card = line.split(" ")[1]
+                        self.gui.othercards.append(card)
 
-                elif "All_bet" in line:
+                    elif "Main" in line and "state" not in line:
+                        line = line.rstrip("\n")
+                        card = line.split(" ")[1]
+                        self.gui.maincards.append(card)
 
-                    line = line.rstrip("\n")
-                    self.all_bet = int(line)
+                    elif "state" in line:
 
-            self.gui.gameopen1(self.gui.maincards, self.gui.mycards, self.gui.othercards, states)
+                        line = line.rstrip("\n")
+                        state = line.split(" ")[1]
+                        states.append(state)
+
+                    elif "Actual player_money" in line:
+
+                        line = line.rstrip("\n")
+                        line = line.split(":")[1]
+                        self.player_money = int(line)
+
+                    elif "Actual bot_money" in line:
+
+                        line = line.rstrip("\n")
+                        line = line.split(":")[1]
+                        self.bot_money = int(line)
+                        
+                    elif "Actual player_bet" in line:
+
+                        line = line.rstrip("\n")
+                        line = line.split(":")[1]
+                        self.player_bet = int(line)
+                        
+                    elif "Actual bot_bet" in line:
+
+                        line = line.rstrip("\n")
+                        line = line.split(":")[1]
+                        self.bot_bet = int(line)
+
+                    elif "Actual all_bet" in line:
+
+                        line = line.rstrip("\n")
+                        line = line.split(":")[1]
+                        self.all_bet = int(line)
+
+
+            self.gui.gameopen1(self.gui.maincards,self.gui.mycards,self.gui.othercards,states)
+            self.putmaincards()
+            
 
         except IOError:
-            tkMessageBox.showerror("No file", "No saved game found")
+            tkMessageBox.showerror ("No file", "No saved game found")
+
+
 
     def newgame(self):
 
@@ -187,10 +222,12 @@ class Logic:
 
             if answer2 == "yes":
                 self.savegame()
+                self.create_new_game()
                 self.gui.game1()
             else:
-
+                self.create_new_game()
                 self.gui.game1()
+
 
     def showmaincards(self, **options):
 

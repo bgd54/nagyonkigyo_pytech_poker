@@ -1,3 +1,4 @@
+Uj jatekos:
 Udv a jatekban!
 Megnezheted a lapjaid!
 Dontetlen!
@@ -5,10 +6,6 @@ A gep nyert!
 Te nyertel!
 Te vagy a nagy vak!
 Te vagy a kis vak!
-Osszes jatek:
-Elvesztett:
-Nyert:
-Valaszd ki a nyelvet!
 Megad
 Emel
 Eldob
@@ -19,6 +16,7 @@ Bot zsetonjai:
 Jatekos tetje:
 Bot tetje:
 Osszes tet:
+Ide irhatsz:
 Fajl
 Uj
 Megnyitas
@@ -27,7 +25,18 @@ Beallitasok
 Nyelv
 Hangok
 Kartya stilusok
+Asztal stilusok
 Statisztika
 Jatek statisztika
 Szabalyok
 Lap ertekek
+Osszes jatek:
+Elvesztett:
+Nyert:
+Grafikon
+Valaszd ki a nyelvet!
+Valassz kartya stilust!
+Valassz asztal hatteret!
+Hang
+Be
+Ki

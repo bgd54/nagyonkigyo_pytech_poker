@@ -1,3 +1,4 @@
+New player:
 Welcome!
 You can look at your cards!
 It's a tie!
@@ -5,10 +6,6 @@ Bot wins!
 You win!
 You are the big blind!
 You are the small blind
-All games:
-Lost:
-Win:
-Choose language
 Give
 Raise
 Throw
@@ -19,6 +16,7 @@ Bot tokens:
 Your bet:
 Bot's bet:
 All bet:
+You can write here:
 File
 New
 Open
@@ -27,7 +25,18 @@ Settings
 Language
 Sounds
 Card types
+Background types
 Statistics
 Game statistics
 Rules
 Ranking
+All games:
+Lost:
+Win:
+Plot view
+Choose language!
+Choose card type!
+Choose background type!
+Sound
+On
+Off

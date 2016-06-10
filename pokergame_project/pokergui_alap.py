@@ -386,6 +386,60 @@ class PokerGui:
         self.card_mine1.config(text="back")
         self.card_mine2.config(text="back")
 
+    
+    # Mentett jatek megnyitasa a pokergame modulbol
+
+    def gameopen1(self,maincards,mycards,othercards,states):
+
+        all_cards = mycards+othercards+maincards
+
+        del self.cardpictures[:]
+        del self.cardpictures2[:]
+        del self.cardpictures3[:]
+        del self.maincards[:]
+        del self.othercards[:]
+        del self.mycards[:]
+
+        for i in range(9):
+
+                self.next_card = all_cards[i]
+                self.name = self.next_card+".png"
+
+                if i<2:
+                
+                    self.mycards.append(self.next_card)
+                    self.pic2 = self.load_picture(self.name,"resize",self.small_card_sizes[0],self.small_card_sizes[1])
+                
+                    self.cardpictures.append(self.pic2)
+
+                elif i>=2 and i<4:
+
+                
+                    self.othercards.append(self.next_card)
+                    self.pic2 = self.load_picture(self.name,"resize",self.small_card_sizes[0],self.small_card_sizes[1])
+                    self.cardpictures3.append(self.pic2)
+
+                elif i>=4:
+
+                    self.maincards.append(self.next_card)
+                    self.pic2 = self.load_picture(self.name,"resize",self.maincard_size[0],self.maincard_size[1])
+                                  
+                    self.cardpictures2.append(self.pic2)
+
+        for i in range(5):
+            
+            if states[i] == "face":
+                self.card[i].config(image=self.cardpictures2[i],text="face")
+            elif states[i] == "back":
+                self.card[i].config(text="back")
+
+        
+        self.card_others1.config(text="back")
+        self.card_others2.config(text="back")
+        self.card_mine1.config(text="back")
+        self.card_mine2.config(text="back")
+
+        self.changeState([self.giveButton,self.raiseButton,self.throwButton,self.mycardsbutton],"normal") 
 
 
     # GUI elemek
@@ -1011,8 +1065,8 @@ class PokerGui:
         self.changeText(label1,self.stat_info3)
 
         name1 = label.cget("text").rstrip(':')
-        name2 = label2.cget("text").rstrip(':')
-        name3 = label1.cget("text").rstrip(':')
+        name2 = label1.cget("text").rstrip(':')
+        name3 = label2.cget("text").rstrip(':')
         title = self.statmenu.entrycget(1,"label")
 
         plot_button = tk.Button(stat,text="Plot view",command=lambda: plot1.makeplot2(title,name1,name2,name3,all1=self.games,win=self.win_games,lost=self.lost_games))
@@ -1070,6 +1124,8 @@ class PokerGui:
 
         frame.pack()
         frame1.pack()
+
+        update_self()
 
         settings.mainloop()
 
@@ -1426,9 +1482,11 @@ class PokerGui:
         def create_new_player(event):
             new_player_name = new_player.get()
             directory = os.path.join(self.users_path,new_player_name)+os.path.sep
+            saved_games_directory = os.path.join(directory,"Saved_games")+os.path.sep
             if not os.path.exists(directory):
                 try:
                     os.makedirs(directory)
+                    os.makedirs(saved_games_directory)
                     self.current_user_path = directory
                     self.player.set(str(new_player_name))
                     self.players.append(self.player.get())

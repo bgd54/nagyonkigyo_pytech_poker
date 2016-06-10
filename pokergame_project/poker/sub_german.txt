@@ -1,3 +1,4 @@
+Neue Spieler:
 Willkommen auf dem Spiel!
 Können wir Ihre Karten!
 ZIEHEN!
@@ -5,10 +6,6 @@ Die sich ergebende Maschine!
 Sie haben gewonnen!
 Du bist im Big Blind!
 Du bist in der Small Blind!
-Alle Spiele:
-verloren:
-gewonnen:
-Wählen Sie Ihre Sprache!
 gewähren
 erhöhen
 wegwerfen
@@ -19,6 +16,7 @@ Bot-Chips:
 Die Spieler wetten:
 Bot dem Spiel:
 Alle Wetten:
+Sie können schreiben Sie an:
 spec
 neu
 ÖFFNUNGS
@@ -27,7 +25,18 @@ Einstellung
 Sprache
 Klänge
 Kartenart
+Tabelle Stil
 Statistiken
 Spielstatistiken 
 als Bedingungen
-Profilwerte
+Profilwerte 
+Alle Spiele:
+verloren:
+gewonnen:
+graph
+Wählen Sie Ihre Sprache!
+Wählen Sie eine Karte der Art!
+Wählen Sie eine Tabelle mit einem Feld!
+klingen
+auf
+Wer

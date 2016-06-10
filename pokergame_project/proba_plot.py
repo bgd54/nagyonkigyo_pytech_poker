@@ -21,7 +21,7 @@ class PokerPlot:
         self.image1 = image
    
    
-    def makeplot2(self,**options):
+    def makeplot2(self,title,name1,name2,name3,**options):
 
         self.root = Tk.Toplevel()
         self.root.resizable(0,0)
@@ -59,11 +59,11 @@ class PokerPlot:
         self.means2 = np.array(self.means)
             
         self.rects1 = self.a2.bar(self.ind, self.means2, self.width, color=['b','g','r'])
-        self.a2.set_title('Game statistics')
+        self.a2.set_title(title)
         self.a2.axis([0, 3, 0, max(self.means)+2])
 
         self.a2.set_xticks(np.arange(N)+0.7)
-        self.a2.set_xticklabels(('All games','Win','Lost'))
+        self.a2.set_xticklabels((str(name1),str(name2),str(name3)))
 
         def autolabel(rects):
             for rect in rects:

@@ -51,6 +51,8 @@ class PokerGui:
 
         for i in range(7):
             self.infolabels.append([])
+
+        self.rules_pic = []
             
         self.add_language("english")
         self.add_language("hungarian")
@@ -88,7 +90,7 @@ class PokerGui:
         
         #self.get_pictures()
         
-        self.rules_pic = ["rules.png","rules2.png"]
+        
 
         self.cardback_samples = []
         self.cardback_smalls = []
@@ -254,11 +256,10 @@ class PokerGui:
             self.chat_frame2 = tk.Frame(self.master)
             self.scrollbar = tk.Scrollbar(self.chat_frame1)
             self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
-##
+
             self.text = tk.Text(self.chat_frame1, wrap=tk.WORD,width=15,height=5,yscrollcommand=self.scrollbar.set)
-##            self.text.insert(tk.END, "hello, ")
             self.text.pack()
-##
+
             self.scrollbar.config(command=self.text.yview)
 
             def on_entry_click(event):
@@ -267,7 +268,7 @@ class PokerGui:
             
             
             self.chat_entry = tk.Entry(self.chat_frame2,width=23)
-            self.chat_entry.insert(0, "You can write here")
+            self.chat_entry.insert(0, "You can write here:")
             self.chat_entry.bind("<Return>", self.send_message)
             self.chat_entry.bind('<FocusIn>', on_entry_click)
             
@@ -602,9 +603,9 @@ class PokerGui:
                 
                 
         if self.chat_entry.get().startswith(' '):
-            s = "\nPlayer:"+self.chat_entry.get()
+            s = "\n"+self.player.get()+": "+self.chat_entry.get()
         else:
-            s = "\nPlayer: "+self.chat_entry.get()
+            s = "\n"+self.player.get()+": "+self.chat_entry.get()
         self.chat_entry.delete(0, tk.END)
         self.text.config(state=tk.NORMAL)
         self.text.insert(tk.END, s)
@@ -730,47 +731,53 @@ class PokerGui:
 
     def create_subs(self):
 
-        self.welcome_info=[]
-        self.look_info=[]
-        self.tie_info=[]
-        self.botwin_info=[]
-        self.youwin_info=[]
-        self.bigblind_info=[]
-        self.smallblind_info=[]
-        self.stat_info1=[]
-        self.stat_info2=[]
-        self.stat_info3=[]
-        self.choose_lang_info=[]
-        #self.lang_info=[]
-        self.lang_info = [["English","Angol","Englisch"],["Hungarian","Magyar","Ungarisch"],["German","Nemet","Deutsch"]]
-        self.give_info=[]
-        self.raise_info=[]
-        self.throw_info=[]
+        # Nyito ablak
 
-        self.start_info=[]
-        self.mycards_info=[]
+        self.new_player_label = []
 
-        self.player_token_info=[]
-        self.bot_token_info=[]
-                
-        self.player_bet_info=[]
-        self.bot_bet_info=[]
-        self.all_bet_info=[]
-        self.filemenu0_info=[]
-        self.filemenu1_info=[]
-        self.filemenu2_info=[]
-        self.filemenu3_info=[]
+        # Kiirt informaciok
 
-        self.settingsmenu0_info=[]
-        self.settingsmenu1_info=[]
-        self.settingsmenu2_info=[]
-        self.settingsmenu3_info=[] 
+        self.welcome_info, self.look_info, self.tie_info, self.botwin_info, self.youwin_info, self.bigblind_info, self.smallblind_info = ([] for i in range(7))
+
+        # Main window gombjainak feliratai
         
-        self.statmenu0_info=[]
-        self.statmenu1_info=[]
+        self.give_info, self.raise_info, self.throw_info, self.start_info, self.mycards_info = ([] for i in range(5))
 
-        self.rulesmenu0_info=[]
-        self.rulesmenu1_info=[]
+        # Zsetonokkal es tetekkel kapcsolatos feliratok
+
+        self.player_token_info, self.bot_token_info,self.player_bet_info,self.bot_bet_info,self.all_bet_info = ([] for i in range(5))
+
+        # Chat
+
+        self.chat_entry_text = []
+                
+        # Menusor es lenyilo menuk feliratai
+        
+        self.filemenu0_info, self.filemenu1_info, self.filemenu2_info, self.filemenu3_info = ([] for i in range(4))
+        self.settingsmenu0_info,self.settingsmenu1_info, self.settingsmenu2_info, self.settingsmenu3_info,self.settingsmenu4_info = ([] for i in range(5))
+        self.statmenu0_info, self.statmenu1_info = ([] for i in range(2))
+        self.rulesmenu0_info, self.rulesmenu1_info = ([] for i in range(2))
+
+        # Menukon beluli feliratok
+
+        self.stat_info1, self.stat_info2, self.stat_info3,self.stat_plot = ([] for i in range(4))
+        self.choose_lang_info,self.choose_style_label,self.choose_background_label = ([] for i in range(3))
+        self.lang_info = [["English","Angol","Englisch"],["Hungarian","Magyar","Ungarisch"],["German","Nemet","Deutsch"]]
+        self.sound_label,self.on_label,self.off_label = ([] for i in range(3))
+
+        self.all_subs = [self.new_player_label,
+                    self.welcome_info, self.look_info, self.tie_info, self.botwin_info, self.youwin_info, self.bigblind_info, self.smallblind_info,
+                    self.give_info, self.raise_info, self.throw_info, self.start_info, self.mycards_info,
+                    self.player_token_info, self.bot_token_info,self.player_bet_info,self.bot_bet_info,self.all_bet_info,
+                    self.chat_entry_text,
+                    self.filemenu0_info, self.filemenu1_info, self.filemenu2_info, self.filemenu3_info,
+                    self.settingsmenu0_info,self.settingsmenu1_info, self.settingsmenu2_info, self.settingsmenu3_info,self.settingsmenu4_info,
+                    self.statmenu0_info, self.statmenu1_info,
+                    self.rulesmenu0_info, self.rulesmenu1_info,
+                    self.stat_info1, self.stat_info2, self.stat_info3,self.stat_plot,
+                    self.choose_lang_info,self.choose_style_label,self.choose_background_label,
+                    self.sound_label,self.on_label,self.off_label]
+       
 
     def changeText(self,elem,text):
 
@@ -793,11 +800,8 @@ class PokerGui:
 
 
 
-    def update_subs(self):    
+    def update_subs(self):
                 
-        self.changeText(self.showbutton2, self.start_info)
-        self.changeText(self.mycardsbutton, self.mycards_info)
-
         self.changeText(self.giveButton,self.give_info)
         self.changeText(self.giveButton2,self.give_info)
         self.changeText(self.raiseButton,self.raise_info)
@@ -805,11 +809,17 @@ class PokerGui:
         self.changeText(self.throwButton,self.throw_info)
         self.changeText(self.throwButton2,self.throw_info)
 
+        self.changeText(self.showbutton2, self.start_info)
+        self.changeText(self.mycardsbutton, self.mycards_info)
+
+        self.changeText(self.label_sum2, self.player_token_info)
+        self.changeText(self.label_sum_bot2, self.bot_token_info)
         self.changeText(self.all_bet_playerlabel1, self.player_bet_info)
         self.changeText(self.all_bet_botlabel1, self.bot_bet_info)
         self.changeText(self.all_bet1, self.all_bet_info)
-        self.changeText(self.label_sum2, self.player_token_info)
-        self.changeText(self.label_sum_bot2, self.bot_token_info)
+
+        
+        
 
         self.changeMenu(self.menubar,1,self.filemenu0_info)
         self.changeMenu(self.menubar,2,self.statmenu0_info)
@@ -823,6 +833,7 @@ class PokerGui:
         self.changeMenu(self.settingsmenu,0,self.settingsmenu1_info)
         self.changeMenu(self.settingsmenu,1,self.settingsmenu2_info)
         self.changeMenu(self.settingsmenu,2,self.settingsmenu3_info)
+        self.changeMenu(self.settingsmenu,3,self.settingsmenu4_info)
 
         self.changeMenu(self.statmenu,1,self.statmenu1_info)
         self.changeMenu(self.rulesmenu,1,self.rulesmenu1_info)
@@ -833,9 +844,13 @@ class PokerGui:
             for j in range(len(self.languages)):
                 if self.infolabel.cget("text") == self.infolabels[i][j]:
                         self.infolabel.config(text=self.infolabels[i][index1])
+
+        
+        self.chat_entry.delete(0, tk.END)
+        self.chat_entry.insert(0, self.chat_entry_text[index1])
                         
 
-
+        
 
 
     # Allapotok
@@ -894,10 +909,10 @@ class PokerGui:
             success = self.read_language_subs(language)
             if success:
                 self.languages.append(language)
-
-##            self.lang_info.append([])
-##            for j in range(len(self.lang_info)):
-##                    self.lang_info[j].append(language)
+                if language == "hungarian":
+                    self.rules_pic.append("rules2.png")
+                else:
+                    self.rules_pic.append("rules.png")
 
     def read_language_subs(self,language):
             
@@ -909,56 +924,10 @@ class PokerGui:
                 line = line.rstrip("\n")
                 self.subtitles.append(str(line))
 
-            self.welcome_info.append(self.subtitles[0])
-            self.look_info.append(self.subtitles[1])
-            self.tie_info.append(self.subtitles[2])
-            self.botwin_info.append(self.subtitles[3])
-            self.youwin_info.append(self.subtitles[4])
-            self.bigblind_info.append(self.subtitles[5])
-            self.smallblind_info.append(self.subtitles[6])
-
-            self.infolabels[0].append(self.subtitles[0])
-            self.infolabels[1].append(self.subtitles[1])
-            self.infolabels[2].append(self.subtitles[2])
-            self.infolabels[3].append(self.subtitles[3])
-            self.infolabels[4].append(self.subtitles[4])
-            self.infolabels[5].append(self.subtitles[5])
-            self.infolabels[6].append(self.subtitles[6])
-            
-            self.stat_info1.append(self.subtitles[7])
-            self.stat_info2.append(self.subtitles[8])
-            self.stat_info3.append(self.subtitles[9])
-            self.choose_lang_info.append(self.subtitles[10])
-            
-            self.give_info.append(self.subtitles[11])
-            self.raise_info.append(self.subtitles[12])
-            self.throw_info.append(self.subtitles[13])
-
-            self.start_info.append(self.subtitles[14])
-            self.mycards_info.append(self.subtitles[15])
-
-            self.player_token_info.append(self.subtitles[16])
-            self.bot_token_info.append(self.subtitles[17])
-            
-            self.player_bet_info.append(self.subtitles[18])
-            self.bot_bet_info.append(self.subtitles[19])
-            self.all_bet_info.append(self.subtitles[20])
-
-            self.filemenu0_info.append(self.subtitles[21])
-            self.filemenu1_info.append(self.subtitles[22])
-            self.filemenu2_info.append(self.subtitles[23])
-            self.filemenu3_info.append(self.subtitles[24])
-
-            self.settingsmenu0_info.append(self.subtitles[25])
-            self.settingsmenu1_info.append(self.subtitles[26])
-            self.settingsmenu2_info.append(self.subtitles[27])
-            self.settingsmenu3_info.append(self.subtitles[28]) 
-            
-            self.statmenu0_info.append(self.subtitles[29])
-            self.statmenu1_info.append(self.subtitles[30])
-
-            self.rulesmenu0_info.append(self.subtitles[31])
-            self.rulesmenu1_info.append(self.subtitles[32])
+            for i in range(len(self.subtitles)):
+                if i<7:
+                    self.infolabels[i].append(self.subtitles[i])
+                self.all_subs[i].append(self.subtitles[i])
 
 
             file_lang.close()
@@ -1023,10 +992,6 @@ class PokerGui:
         label_win = tk.Label(stat,text=str(self.win_games))
         label_lost = tk.Label(stat,text=str(self.lost_games))
 
-        
-        self.changeText(label,self.stat_info1)
-        self.changeText(label2,self.stat_info2)
-        self.changeText(label1,self.stat_info3)
             
         label.grid(row=0,column=0)
         label1.grid(row=1,column=0)
@@ -1041,8 +1006,20 @@ class PokerGui:
         #plot1.root.tk.call("wm", "iconphoto", plot1.root._w, self.img_blue3)
         plot1.get_image(self.img_blue3)
 
-        plot_button = tk.Button(stat,text="Plot view",command=lambda: plot1.makeplot2(all1=self.games,win=self.win_games,lost=self.lost_games))
+        self.changeText(label,self.stat_info1)
+        self.changeText(label2,self.stat_info2)
+        self.changeText(label1,self.stat_info3)
+
+        name1 = label.cget("text").rstrip(':')
+        name2 = label2.cget("text").rstrip(':')
+        name3 = label1.cget("text").rstrip(':')
+        title = self.statmenu.entrycget(1,"label")
+
+        plot_button = tk.Button(stat,text="Plot view",command=lambda: plot1.makeplot2(title,name1,name2,name3,all1=self.games,win=self.win_games,lost=self.lost_games))
         plot_button.grid(row=3,column=1)
+
+        
+        self.changeText(plot_button, self.stat_plot)
         
         stat.mainloop()
 
@@ -1111,12 +1088,19 @@ class PokerGui:
         label = tk.Label(frame,text="Sound")
         label.pack()
 
+        
+        
+
         def change_sound(**options):
                 
             self.sound = options.get("type1")
         
         on_button = tk.Radiobutton(frame1, variable=self.sound,value="on",text="On", command=lambda:change_sound(type1="on"))
         off_button = tk.Radiobutton(frame1, variable=self.sound,value="off",text="Off",command=lambda:change_sound(type1="off"))
+
+        self.changeText(label,self.sound_label)
+        self.changeText(on_button,self.on_label)
+        self.changeText(off_button,self.off_label)
 
         if self.sound == "on":
                 on_button.select()
@@ -1145,6 +1129,8 @@ class PokerGui:
         label = tk.Label(frame,text="Choose")
         label.pack()
         frame.pack()
+
+        self.changeText(label,self.choose_style_label)
 
 
         if len(self.styles) <= 6:
@@ -1230,6 +1216,8 @@ class PokerGui:
         label = tk.Label(frame,text="Choose")
         label.pack()
         frame.pack()
+
+        self.changeText(label,self.choose_background_label)
 
 
         if len(self.background_styles) <= 6:

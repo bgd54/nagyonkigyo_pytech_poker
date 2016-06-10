@@ -686,8 +686,8 @@ class PokerGui:
                 if elemek[i].cget("text") == "back" or elemek[i].cget("text") == "ready":
                     elemek[i].config(image=images[i])
             elif len(images) == 1:
-                #if elemek[i].cget("text") == "back" or elemek[i].cget("text") == "ready":
-                elemek[i].config(image=images[0])
+                if elemek[i].cget("text") == "back" or elemek[i].cget("text") == "ready":
+                    elemek[i].config(image=images[0])
 
     def give_style(self,style, pic_name):
 
